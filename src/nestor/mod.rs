@@ -1,4 +1,4 @@
 mod cpu;
-mod memory;
+mod memory_map;
 mod traits;
 
