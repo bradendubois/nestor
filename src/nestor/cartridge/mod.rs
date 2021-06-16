@@ -6,10 +6,19 @@ pub struct Cartridge {
 }
 
 
+impl Cartridge {
+
+    pub fn new() -> Cartridge {
+        Cartridge {
+            data: Vec::new()
+        }
+    }
+}
+
+
 impl MemoryMap for Cartridge {
 
     fn read(&self, address: u16) -> u8 {
-
         match address {
             0x4020..=0xFFFF => *self.data.get((address - 0x4020) as usize).unwrap_or(&0),
             _=> panic!("unmapped address: {:#06X}", address)
