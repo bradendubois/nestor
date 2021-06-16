@@ -1,9 +1,10 @@
-use crate::nestor::traits::MemoryMap;
+use crate::nestor::traits::{MemoryMap, Power};
 
 mod cartridge;
 mod cpu;
 mod io;
 mod traits;
+mod enums;
 
 pub struct Nestor {
     cartridge: cartridge::Cartridge,
@@ -19,8 +20,11 @@ impl Nestor {
         }
     }
 
-    pub fn run(&mut self) {
-        self.cartridge.read(0x4020);
-        self.cpu.run();
+    pub fn power_up(&mut self) {
+        self.cpu.power_up();
+    }
+
+    pub fn reset(&mut self) {
+        self.cpu.reset();
     }
 }

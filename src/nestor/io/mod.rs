@@ -4,6 +4,16 @@ pub struct IO {
 
 }
 
+impl IO {
+
+    pub fn new() -> IO {
+        IO {
+
+        }
+    }
+}
+
+
 // Allow flag is to please IntelliJ not realizing the pattern is exhaustive
 #[allow(unreachable_patterns)]
 impl MemoryMap for IO {

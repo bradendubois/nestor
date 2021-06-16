@@ -4,3 +4,9 @@ pub trait MemoryMap {
 
     fn write(&mut self, address: u16, value: u8);
 }
+
+pub trait Power {
+
+    fn power_up(&mut self);
+    fn reset(&mut self);
+}

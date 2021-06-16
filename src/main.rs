@@ -6,5 +6,5 @@ fn main() {
 
     let mut nestor = nestor::Nestor::new();
 
-    nestor.run();
+    nestor.power_up();
 }
