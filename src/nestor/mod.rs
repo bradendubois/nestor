@@ -1,5 +1,5 @@
 pub mod cpu;
-pub mod memory_map;
+pub mod io;
 
+mod cartridge;
 mod traits;
-

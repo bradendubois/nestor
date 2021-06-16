@@ -1,12 +1,12 @@
 use crate::nestor::traits::MemoryMap;
 
-pub struct Memory {
+pub struct IO {
 
 }
 
 // Allow flag is to please IntelliJ not realizing the pattern is exhaustive
 #[allow(unreachable_patterns)]
-impl MemoryMap for Memory {
+impl MemoryMap for IO {
 
     fn read(&self, address: u16) -> u8 {
         match address {
