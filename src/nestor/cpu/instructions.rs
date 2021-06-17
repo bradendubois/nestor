@@ -238,7 +238,7 @@ impl CPU6502 {
             0xD5 => self.cmp(ZeroPageX),
             0xD6 => self.dec(ZeroPageX),
             0xD7 => self.dcp(ZeroPageX),
-            0xD8 => self.cld(Implied),
+            0xD8 => self.cld(),
             0xD9 => self.cmp(AbsoluteY),
             0xDA => self.nop(Implied),
             0xDB => self.dcp(AbsoluteY),
@@ -290,88 +290,59 @@ impl CPU6502 {
 /// Official Opcodes - ALU Operations
 impl CPU6502 {
 
-    pub fn adc(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn adc(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for adc : {:?}", mode)
+        }
     }
 
-    pub fn and(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn and(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for and : {:?}", mode)
+        }
     }
 
-    pub fn asl(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn asl(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for asl : {:?}", mode)
+        }
     }
 
-    pub fn bcc(&mut self) -> u8 {
-        0
+    pub fn bit(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for bit : {:?}", mode)
+        }
     }
 
-    pub fn bcs(&mut self) -> u8 {
-        0
+
+    pub fn brk(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for brk : {:?}", mode)
+        }
     }
 
-    pub fn beq(&mut self) -> u8 {
-        0
+    pub fn cmp(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for cmp : {:?}", mode)
+        }
     }
 
-    pub fn bit(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn cpx(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for cpx : {:?}", mode)
+        }
     }
 
-    pub fn bmi(&mut self) -> u8 {
-        0
+    pub fn cpy(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for cpy : {:?}", mode)
+        }
     }
 
-    pub fn bne(&mut self) -> u8 {
-        0
-    }
-
-    pub fn bpl(&mut self) -> u8 {
-        0
-    }
-
-    pub fn brk(&mut self, _mode: OperandMode) -> u8 {
-        0
-    }
-
-    pub fn bvc(&mut self) -> u8 {
-        0
-    }
-
-    pub fn bvs(&mut self) -> u8 {
-        0
-    }
-
-    pub fn clc(&mut self) -> u8 {
-        0
-    }
-
-    pub fn cld(&mut self, _mode: OperandMode) -> u8 {
-        0
-    }
-
-    pub fn cli(&mut self) -> u8 {
-        0
-    }
-
-    pub fn clv(&mut self) -> u8 {
-        0
-    }
-
-    pub fn cmp(&mut self, _mode: OperandMode) -> u8 {
-        0
-    }
-
-    pub fn cpx(&mut self, _mode: OperandMode) -> u8 {
-        0
-    }
-
-    pub fn cpy(&mut self, _mode: OperandMode) -> u8 {
-        0
-    }
-
-    pub fn dec(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn dec(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for dec : {:?}", mode)
+        }
     }
 
     pub fn dex(&mut self) -> u8 {
@@ -382,12 +353,16 @@ impl CPU6502 {
         0
     }
 
-    pub fn eor(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn eor(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for eor : {:?}", mode)
+        }
     }
 
-    pub fn inc(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn inc(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for inc : {:?}", mode)
+        }
     }
 
     pub fn inx(&mut self) -> u8 {
@@ -398,36 +373,52 @@ impl CPU6502 {
         0
     }
 
-    pub fn jmp(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn jmp(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for jmp : {:?}", mode)
+        }
     }
 
-    pub fn jsr(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn jsr(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for jsr : {:?}", mode)
+        }
     }
 
-    pub fn lda(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn lda(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for lda : {:?}", mode)
+        }
     }
 
-    pub fn ldx(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn ldx(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for ldx : {:?}", mode)
+        }
     }
 
-    pub fn ldy(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn ldy(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for ldy : {:?}", mode)
+        }
     }
 
-    pub fn lsr(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn lsr(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for lsr : {:?}", mode)
+        }
     }
 
-    pub fn nop(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn nop(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for nop : {:?}", mode)
+        }
     }
 
-    pub fn ora(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn ora(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for ora : {:?}", mode)
+        }
     }
 
     pub fn pha(&mut self) -> u8 {
@@ -438,56 +429,62 @@ impl CPU6502 {
         0
     }
 
-    pub fn pla(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn pla(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for pla : {:?}", mode)
+        }
     }
 
     pub fn plp(&mut self) -> u8 {
         0
     }
 
-    pub fn rol(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn rol(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for rol : {:?}", mode)
+        }
     }
 
-    pub fn ror(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn ror(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for ror : {:?}", mode)
+        }
     }
 
-    pub fn rti(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn rti(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for rti : {:?}", mode)
+        }
     }
 
-    pub fn rts(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn rts(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for rts : {:?}", mode)
+        }
     }
 
-    pub fn sbc(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn sbc(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for sbc : {:?}", mode)
+        }
     }
 
-    pub fn sec(&mut self) -> u8 {
-        0
+    pub fn sta(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for sta : {:?}", mode)
+        }
     }
 
-    pub fn sed(&mut self) -> u8 {
-        0
+    pub fn stx(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for stx : {:?}", mode)
+        }
     }
 
-    pub fn sei(&mut self) -> u8 {
-        0
-    }
-
-    pub fn sta(&mut self, _mode: OperandMode) -> u8 {
-        0
-    }
-
-    pub fn stx(&mut self, _mode: OperandMode) -> u8 {
-        0
-    }
-
-    pub fn sty(&mut self, _mode: OperandMode) -> u8 {
-        0
+    pub fn sty(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for sty : {:?}", mode)
+        }
     }
 
     pub fn tax(&mut self) -> u8 {
@@ -511,6 +508,86 @@ impl CPU6502 {
     }
 
     pub fn tya(&mut self) -> u8 {
+        0
+    }
+
+    /***** Branching *****/
+
+    /// 0x10 - Branch on Plus
+    pub fn bpl(&mut self) -> u8 {
+        0
+    }
+
+    // 0x30 - Branch on Minus
+    pub fn bmi(&mut self) -> u8 {
+        0
+    }
+
+    /// 0x50 - Branch on Overflow Clear
+    pub fn bvc(&mut self) -> u8 {
+        0
+    }
+
+    /// 0x70 - Branch on Overflow Set
+    pub fn bvs(&mut self) -> u8 {
+        0
+    }
+
+    /// 0x90 - Branch on Carry Clear
+    pub fn bcc(&mut self) -> u8 {
+        0
+    }
+
+    /// 0xB0 - Branch on Carry Set
+    pub fn bcs(&mut self) -> u8 {
+        0
+    }
+
+    /// 0xD0 - Branch on Not Equal
+    pub fn bne(&mut self) -> u8 {
+        0
+    }
+
+    /// 0xF0 - Branch on Equal
+    pub fn beq(&mut self) -> u8 {
+        0
+    }
+
+    /***** Flag (Processor Status) *****/
+
+    /// 0x18 - Clear Carry
+    pub fn clc(&mut self) -> u8 {
+        self.registers.set_carry(false);
+        0
+    }
+
+    pub fn sec(&mut self) -> u8 {
+        self.registers.set_carry(true);
+        0
+    }
+
+    pub fn cli(&mut self) -> u8 {
+        self.registers.set_interrupt(false);
+        0
+    }
+
+    pub fn sei(&mut self) -> u8 {
+        self.registers.set_interrupt(true);
+        0
+    }
+
+    pub fn clv(&mut self) -> u8 {
+        self.registers.set_overflow(false);
+        0
+    }
+
+    pub fn cld(&mut self) -> u8 {
+        self.registers.set_decimal(false);
+        0
+    }
+
+    pub fn sed(&mut self) -> u8 {
+        self.registers.set_decimal(true);
         0
     }
 }
