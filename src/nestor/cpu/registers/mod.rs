@@ -2,12 +2,12 @@ use crate::nestor::traits::Power;
 
 #[allow(dead_code)]
 pub struct Registers {
-    pc: u16,    // Program Counter
-    a: u8,      // Accumulator
-    x: u8,      // X Index
-    y: u8,      // Y Index
-    s: u8,      // Stack Pointer
-    p: u8       // Status Register
+    pub pc: u16,    // Program Counter
+    pub a: u8,      // Accumulator
+    pub x: u8,      // X Index
+    pub y: u8,      // Y Index
+    pub s: u8,      // Stack Pointer
+    pub p: u8       // Status Register
 }
 
 #[allow(dead_code)]
@@ -32,6 +32,8 @@ impl Registers {
         }
     }
 
+    pub fn negative(&self) -> bool { self.p & 0x80 != 0 }
+
     /// Overflow - Bit 6 (0x40)
     pub fn set_overflow(&mut self, enabled: bool) {
         match enabled {
@@ -39,6 +41,8 @@ impl Registers {
             false => self.p &= !0x40
         }
     }
+
+    pub fn overflow(&self) -> bool { self.p & 0x40 != 0 }
 
     /// TODO - "B Flag" on bits 5,4
 
@@ -50,6 +54,8 @@ impl Registers {
         }
     }
 
+    pub fn decimal(&self) -> bool { self.p & 0x08 != 0 }
+
     /// Interrupt - Bit 2 (0x04)
     pub fn set_interrupt(&mut self, enabled: bool) {
         match enabled {
@@ -57,6 +63,8 @@ impl Registers {
             false => self.p &= !0x04
         }
     }
+
+    pub fn interrupt(&self) -> bool { self.p & 0x04 != 0 }
 
     /// Zero - Bit 1 (0x02)
     pub fn set_zero(&mut self, enabled: bool) {
@@ -66,6 +74,8 @@ impl Registers {
         }
     }
 
+    pub fn zero(&self) -> bool { self.p & 0x02 != 0 }
+
     /// Carry - Bit 0 (0x01)
     pub fn set_carry(&mut self, enabled: bool) {
         match enabled {
@@ -73,6 +83,8 @@ impl Registers {
             false => self.p &= !0x01
         }
     }
+
+    pub fn carry(&self) -> bool { self.p & 0x01 != 0 }
 }
 
 

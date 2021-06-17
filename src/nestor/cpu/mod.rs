@@ -38,6 +38,12 @@ impl CPU6502 {
     pub fn word(&mut self) -> u16 {
         0
     }
+
+
+    pub fn relative(&mut self, bb: i8) -> (u16, bool) {
+        let result = ((self.registers.pc as u32 as i32) + bb as i32) as u16;
+        (result, (self.registers.pc & 0xFF00) != (result & 0xFF00))
+    }
 }
 
 

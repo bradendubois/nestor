@@ -487,70 +487,96 @@ impl CPU6502 {
         }
     }
 
-    pub fn tax(&mut self) -> u8 {
-        0
-    }
+    /***** Transfer *****/
 
-    pub fn tay(&mut self) -> u8 {
-        0
-    }
-
-    pub fn tsx(&mut self) -> u8 {
-        0
-    }
-
+    /// 0x8A - Transfer X to A
     pub fn txa(&mut self) -> u8 {
-        0
+        self.registers.a = self.registers.x;
+        2
     }
 
-    pub fn txs(&mut self) -> u8 {
-        0
-    }
-
+    /// 0x98 - Transfer Y to A
     pub fn tya(&mut self) -> u8 {
-        0
+        self.registers.a = self.registers.y;
+        2
+    }
+
+    /// 0x9A - Transfer X to SP
+    pub fn txs(&mut self) -> u8 {
+        self.registers.s = self.registers.x;
+        2
+    }
+
+    /// 0xAA - Transfer A to X
+    pub fn tax(&mut self) -> u8 {
+        self.registers.x = self.registers.a;
+        2
+    }
+
+    /// 0xA8 - Transfer A to Y
+    pub fn tay(&mut self) -> u8 {
+        self.registers.y = self.registers.a;
+        2
+    }
+
+    /// 0x9A - Transfer X to SP
+    pub fn tsx(&mut self) -> u8 {
+        self.registers.s = self.registers.x;
+        2
     }
 
     /***** Branching *****/
 
-    /// 0x10 - Branch on Plus
-    pub fn bpl(&mut self) -> u8 {
-        0
+    fn branch_if(&mut self, condition: bool) -> u8 {
+        let bb = self.byte() as i8;
+        let (address, boundary) = self.relative(bb);
+        match condition {
+            true  => {
+                self.registers.pc = address;
+                3 + if boundary { 1 } else { 0 }
+            },
+            false => 2,
+        }
     }
 
-    // 0x30 - Branch on Minus
+    /// 0x10 - Branch on Plus (Negative Unset)
+    pub fn bpl(&mut self) -> u8 {
+        self.branch_if(!self.registers.negative())
+    }
+
+    // 0x30 - Branch on Minus (Negative Set)
     pub fn bmi(&mut self) -> u8 {
-        0
+        self.branch_if(self.registers.negative())
     }
 
     /// 0x50 - Branch on Overflow Clear
     pub fn bvc(&mut self) -> u8 {
-        0
+        self.branch_if(!self.registers.overflow())
     }
 
     /// 0x70 - Branch on Overflow Set
     pub fn bvs(&mut self) -> u8 {
-        0
+        self.branch_if(self.registers.overflow())
     }
 
     /// 0x90 - Branch on Carry Clear
     pub fn bcc(&mut self) -> u8 {
-        0
+        self.branch_if(!self.registers.carry())
     }
 
     /// 0xB0 - Branch on Carry Set
     pub fn bcs(&mut self) -> u8 {
-        0
+        self.branch_if(self.registers.carry())
     }
 
-    /// 0xD0 - Branch on Not Equal
+    /// 0xD0 - Branch on Not Equal (Zero Unset)
     pub fn bne(&mut self) -> u8 {
-        0
+        self.branch_if(!self.registers.zero())
     }
 
-    /// 0xF0 - Branch on Equal
+    /// 0xF0 - Branch on Equal (Zero Set)
     pub fn beq(&mut self) -> u8 {
-        0
+        self.branch_if(self.registers.zero())
     }
 
     /***** Flag (Processor Status) *****/
@@ -558,37 +584,37 @@ impl CPU6502 {
     /// 0x18 - Clear Carry
     pub fn clc(&mut self) -> u8 {
         self.registers.set_carry(false);
-        0
+        2
     }
 
     pub fn sec(&mut self) -> u8 {
         self.registers.set_carry(true);
-        0
+        2
     }
 
     pub fn cli(&mut self) -> u8 {
         self.registers.set_interrupt(false);
-        0
+        2
     }
 
     pub fn sei(&mut self) -> u8 {
         self.registers.set_interrupt(true);
-        0
+        2
     }
 
     pub fn clv(&mut self) -> u8 {
         self.registers.set_overflow(false);
-        0
+        2
     }
 
     pub fn cld(&mut self) -> u8 {
         self.registers.set_decimal(false);
-        0
+        2
     }
 
     pub fn sed(&mut self) -> u8 {
         self.registers.set_decimal(true);
-        0
+        2
     }
 }
 
