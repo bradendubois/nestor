@@ -10,7 +10,7 @@ impl CPU6502 {
 
         #[allow(unreachable_patterns)]
         match opcode {
-            0x00 => self.brk(Implied),
+            0x00 => self.brk(),
             0x01 => self.ora(IndirectX),
             0x02 => self.jam(),
             0x03 => self.slo(IndirectX),
@@ -288,39 +288,8 @@ impl CPU6502 {
 
 }
 
-/// Official Opcodes - ALU Operations
+/// Official Opcodes
 impl CPU6502 {
-
-    pub fn adc(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for adc : {:?}", mode)
-        }
-    }
-
-    pub fn and(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for and : {:?}", mode)
-        }
-    }
-
-    pub fn asl(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for asl : {:?}", mode)
-        }
-    }
-
-    pub fn bit(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for bit : {:?}", mode)
-        }
-    }
-
-
-    pub fn brk(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for brk : {:?}", mode)
-        }
-    }
 
     pub fn cmp(&mut self, mode: OperandMode) -> u8 {
         match mode {
@@ -410,6 +379,177 @@ impl CPU6502 {
         match mode {
             _ => panic!("unsupported mode for sbc : {:?}", mode)
         }
+    }
+
+    /// 0x61, 0x65, 0x69, 0x6D, 0x71, 0x75, 0x79, 0x7D  - Add with Carry
+    pub fn adc(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Immediate => {
+                let value = self.immediate();
+                self.alu_adc(value);
+                2
+            }
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                self.alu_adc(value);
+                3
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                self.alu_adc(value);
+                4
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                self.alu_adc(value);
+                4
+            }
+            AbsoluteX => {
+                let (address, carry) = self.absolute_x();
+                let value = self.io.read(address);
+                self.alu_adc(value);
+                4 + if carry { 1 } else { 0 }
+            }
+            AbsoluteY => {
+                let (address, carry) = self.absolute_y();
+                let value = self.io.read(address);
+                self.alu_adc(value);
+                4 + if carry { 1 } else { 0 }
+            }
+            IndirectX => {
+                let address = self.x_indirect();
+                let value = self.io.read(address);
+                self.alu_adc(value);
+                6
+            }
+            IndirectY => {
+                let (address, carry) = self.indirect_y();
+                let value = self.io.read(address);
+                self.alu_adc(value);
+                5 + if carry { 1 } else { 0 }
+            }
+
+            _ => panic!("unsupported mode for adc : {:?}", mode)
+        }
+    }
+
+    /// 0x21, 0x25, 0x29, 0x2D, 0x31, 0x35, 0x39, 0x3D - Bitwise AND with Accumulator
+    pub fn and(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Immediate => {
+                let value = self.immediate();
+                self.alu_and(value);
+                2
+            },
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                self.alu_and(value);
+                3
+            },
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                self.alu_and(value);
+                4
+            },
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                self.alu_and(value);
+                4
+            },
+            AbsoluteX => {
+                let (address, carry) = self.absolute_x();
+                let value = self.io.read(address);
+                self.alu_and(value);
+                4 + if carry { 1 } else { 0 }
+            },
+            AbsoluteY => {
+                let (address, carry) = self.absolute_y();
+                let value = self.io.read(address);
+                self.alu_and(value);
+                4 + if carry { 1 } else { 0 }
+            },
+            IndirectX => {
+                let address = self.x_indirect();
+                let value = self.io.read(address);
+                self.alu_and(value);
+                6
+            },
+            IndirectY => {
+                let (address, carry) = self.indirect_y();
+                let value = self.io.read(address);
+                self.alu_and(value);
+                5 + if carry { 1 } else { 0 }
+            }
+            _ => panic!("unsupported mode for and : {:?}", mode)
+        }
+    }
+
+    /// 0x06, 0x0A, 0x0E, 0x16, 0x01E - Arithmetic Shift Left
+    pub fn asl(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Accumulator => {
+                let value = self.accumulator();
+                self.alu_asl(value);
+                2
+            }
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                self.alu_asl(value);
+                5
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                self.alu_asl(value);
+                6
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                self.alu_asl(value);
+                6
+            }
+            AbsoluteX => {
+                let (address, carry) = self.absolute_x();
+                let value = self.io.read(address);
+                self.alu_asl(value);
+                6 + if carry { 1 } else { 0 }
+            }
+            _ => panic!("unsupported mode for asl : {:?}", mode)
+        }
+    }
+
+    /// 0x24, 0x2C - BIT
+    pub fn bit(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                self.alu_bit(value);
+                3
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                self.alu_bit(value);
+                4
+            }
+            _ => panic!("unsupported mode for bit : {:?}", mode)
+        }
+    }
+
+    /// 0x00 - Break
+    pub fn brk(&mut self) -> u8 {
+        self.registers.set_interrupt(true);
+        self.registers.pc = self.registers.pc.wrapping_add(1);
+        7
     }
 
     /***** Stack Instruction *****/
@@ -532,8 +672,7 @@ impl CPU6502 {
     fn load(&mut self, mode: OperandMode) -> (u8, u8) {
         match mode {
             Immediate => {
-                let address = self.immediate();
-                (self.io.read(address), 2)
+                (self.immediate(), 2)
             }
             ZeroPage => {
                 let address = self.zero_page();

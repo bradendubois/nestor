@@ -47,6 +47,24 @@ impl CPU6502 {
         0
     }
 
+    /*********** ALU **********/
+
+    fn alu_adc(&mut self, _value: u8) {
+
+    }
+
+    fn alu_and(&mut self, _value: u8) {
+
+    }
+
+    fn alu_asl(&mut self, _value: u8) {
+
+    }
+
+    fn alu_bit(&mut self, _value: u8) {
+
+    }
+
     /*********** Addressing Modes **********/
 
     #[allow(dead_code)]
@@ -70,8 +88,8 @@ impl CPU6502 {
         (result, (word & 0xFF00) != (result & 0xFF00))
     }
 
-    fn immediate(&mut self) -> u16 {
-        self.byte() as u16
+    fn immediate(&mut self) -> u8 {
+        self.byte()
     }
 
     fn indirect(&mut self) -> u16 {
