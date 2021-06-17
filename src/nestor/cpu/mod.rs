@@ -82,28 +82,41 @@ impl CPU6502 {
         self.registers.set_zero(self.registers.a & value == 0);
     }
 
-    fn alu_cmp(&mut self, _src: u8, _value: u8) {
-
+    fn alu_cmp(&mut self, src: u8, value: u8) {
+        self.registers.set_negative(src >= 0x80);
+        self.registers.set_zero(src == value);
+        self.registers.set_carry(src >= value);
     }
 
-    fn alu_dec(&mut self, _value: u8) -> u8 {
-        0
+    fn alu_dec(&mut self, value: u8) -> u8 {
+        let result = value.wrapping_sub(1);
+        self.registers.set_negative(true);
+        self.registers.set_zero(result == 0);
+        result
     }
 
-    fn alu_xor(&mut self, _value: u8) {
-
+    fn alu_xor(&mut self, value: u8) {
+        let result = self.registers.a ^ value;
+        self.registers.set_negative(false);
+        self.registers.set_zero(result == 0);
     }
 
-    fn alu_inc(&mut self, _value: u8) -> u8 {
-        0
+    fn alu_inc(&mut self, value: u8) -> u8 {
+        let result = value.wrapping_add(1);
+        self.registers.set_negative(false);
+        self.registers.set_zero(result == 0);
+        result
     }
 
-    fn alu_lsr(&mut self, _value: u8) {
-
+    fn alu_lsr(&mut self, value: u8) {
+        self.registers.set_negative(false);
+        self.registers.set_zero(value >> 1 == 0);
+        self.registers.set_carry(value & 0x01 != 0);
     }
 
-    fn alu_ora(&mut self, _value: u8) {
-
+    fn alu_ora(&mut self, value: u8) {
+        self.registers.set_negative(false);
+        self.registers.set_zero(self.registers.a | value == 0);
     }
 
     fn alu_rol(&mut self, _value: u8) {
