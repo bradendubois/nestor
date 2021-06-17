@@ -12,6 +12,16 @@ impl IO {
             cartridge
         }
     }
+
+
+    #[allow(dead_code)]
+    pub fn read_byte(&mut self, _address: u16) -> u8 {
+        0
+    }
+
+    pub fn read_word(&mut self, _address: u16) -> u16 {
+        0
+    }
 }
 
 

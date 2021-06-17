@@ -2,6 +2,7 @@ use crate::nestor::cpu::CPU6502;
 
 use crate::nestor::enums::OperandMode::*;
 use crate::nestor::enums::OperandMode;
+use crate::nestor::traits::MemoryMap;
 
 impl CPU6502 {
 
@@ -119,7 +120,7 @@ impl CPU6502 {
             0x65 => self.adc(ZeroPage),
             0x66 => self.ror(ZeroPage),
             0x67 => self.rra(ZeroPage),
-            0x68 => self.pla(Implied),
+            0x68 => self.pla(),
             0x69 => self.adc(Immediate),
             0x6A => self.ror(Accumulator),
             0x6B => self.arr(Immediate),
@@ -345,14 +346,6 @@ impl CPU6502 {
         }
     }
 
-    pub fn dex(&mut self) -> u8 {
-        0
-    }
-
-    pub fn dey(&mut self) -> u8 {
-        0
-    }
-
     pub fn eor(&mut self, mode: OperandMode) -> u8 {
         match mode {
             _ => panic!("unsupported mode for eor : {:?}", mode)
@@ -365,41 +358,9 @@ impl CPU6502 {
         }
     }
 
-    pub fn inx(&mut self) -> u8 {
-        0
-    }
-
-    pub fn iny(&mut self) -> u8 {
-        0
-    }
-
-    pub fn jmp(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for jmp : {:?}", mode)
-        }
-    }
-
     pub fn jsr(&mut self, mode: OperandMode) -> u8 {
         match mode {
             _ => panic!("unsupported mode for jsr : {:?}", mode)
-        }
-    }
-
-    pub fn lda(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for lda : {:?}", mode)
-        }
-    }
-
-    pub fn ldx(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for ldx : {:?}", mode)
-        }
-    }
-
-    pub fn ldy(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for ldy : {:?}", mode)
         }
     }
 
@@ -419,24 +380,6 @@ impl CPU6502 {
         match mode {
             _ => panic!("unsupported mode for ora : {:?}", mode)
         }
-    }
-
-    pub fn pha(&mut self) -> u8 {
-        0
-    }
-
-    pub fn php(&mut self) -> u8 {
-        0
-    }
-
-    pub fn pla(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for pla : {:?}", mode)
-        }
-    }
-
-    pub fn plp(&mut self) -> u8 {
-        0
     }
 
     pub fn rol(&mut self, mode: OperandMode) -> u8 {
@@ -469,25 +412,53 @@ impl CPU6502 {
         }
     }
 
-    pub fn sta(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for sta : {:?}", mode)
-        }
+    /***** Stack Instruction *****/
+
+    /// 0x08 - Push Processor Status
+    pub fn php(&mut self) -> u8 {
+        self.push(self.registers.p);
+        3
     }
 
-    pub fn stx(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for stx : {:?}", mode)
-        }
+    /// 0x28 - Pull Processor Status
+    pub fn plp(&mut self) -> u8 {
+        self.registers.p = self.pull();
+        4
     }
 
-    pub fn sty(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for sty : {:?}", mode)
-        }
+    /// 0x48 - Push Accumulator
+    pub fn pha(&mut self) -> u8 {
+        self.push(self.registers.a);
+        3
     }
 
-    /***** Transfer *****/
+    /// 0x68 - Pull Accumulator
+    pub fn pla(&mut self) -> u8 {
+        self.registers.a = self.pull();
+        4
+    }
+
+    /// 0x9A - Transfer X to SP
+    pub fn txs(&mut self) -> u8 {
+        self.registers.s = self.registers.x;
+        2
+    }
+
+    /// 0xBA - Transfer X to SP
+    pub fn tsx(&mut self) -> u8 {
+        self.registers.s = self.registers.x;
+        2
+    }
+
+    /***** Register Instructions *****/
+
+    /// 0x88 - Decrement Y
+    pub fn dey(&mut self) -> u8 {
+        self.registers.y = self.registers.y.wrapping_sub(1);
+        self.registers.set_negative(true);
+        self.registers.set_zero(self.registers.y == 0);
+        2
+    }
 
     /// 0x8A - Transfer X to A
     pub fn txa(&mut self) -> u8 {
@@ -498,12 +469,6 @@ impl CPU6502 {
     /// 0x98 - Transfer Y to A
     pub fn tya(&mut self) -> u8 {
         self.registers.a = self.registers.y;
-        2
-    }
-
-    /// 0x9A - Transfer X to SP
-    pub fn txs(&mut self) -> u8 {
-        self.registers.s = self.registers.x;
         2
     }
 
@@ -519,10 +484,192 @@ impl CPU6502 {
         2
     }
 
-    /// 0x9A - Transfer X to SP
-    pub fn tsx(&mut self) -> u8 {
-        self.registers.s = self.registers.x;
+    /// 0xCA - Decrement X
+    pub fn dex(&mut self) -> u8 {
+        self.registers.x = self.registers.x.wrapping_sub(1);
+        self.registers.set_negative(true);
+        self.registers.set_zero(self.registers.x == 0);
         2
+    }
+
+    /// 0xC8 - Increment Y
+    pub fn iny(&mut self) -> u8 {
+        self.registers.y = self.registers.y.wrapping_add(1);
+        self.registers.set_negative(false);
+        self.registers.set_zero(self.registers.y == 0);
+        2
+    }
+
+    /// 0xE8 - Increment X
+    pub fn inx(&mut self) -> u8 {
+        self.registers.x = self.registers.x.wrapping_add(1);
+        self.registers.set_negative(false);
+        self.registers.set_zero(self.registers.x == 0);
+        2
+    }
+
+    /***** Jump *****/
+
+    /// 0x4C, 0x6C - Jump
+    pub fn jmp(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Absolute => {
+                let address = self.absolute();
+                self.registers.pc = address;
+                3
+            }
+            Indirect => {
+                let address = self.indirect();
+                self.registers.pc = address;
+                5
+            }
+            _ => panic!("unsupported mode for jmp : {:?}", mode)
+        }
+    }
+
+    /***** Load *****/
+
+    fn load(&mut self, mode: OperandMode) -> (u8, u8) {
+        match mode {
+            Immediate => {
+                let address = self.immediate();
+                (self.io.read(address), 2)
+            }
+            ZeroPage => {
+                let address = self.zero_page();
+                (self.io.read(address), 3)
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                (self.io.read(address), 4)
+            }
+            ZeroPageY => {
+                let address = self.zero_page_y();
+                (self.io.read(address), 4)
+            }
+            Absolute => {
+                let address = self.absolute();
+                (self.io.read(address), 4)
+            }
+            AbsoluteX => {
+                let (address, carry) = self.absolute_x();
+                (self.io.read(address), 4 + if carry { 1 } else { 0 })
+            }
+            AbsoluteY => {
+                let (address, carry) = self.absolute_y();
+                (self.io.read(address), 4 + if carry { 1 } else { 0 })
+            },
+            IndirectX => {
+                let address = self.x_indirect();
+                (self.io.read(address), 6)
+            }
+            IndirectY => {
+                let (address, carry) = self.indirect_y();
+                (self.io.read(address), 5 + if carry { 1 } else { 0 })
+            }
+            _ => panic!("unsupported load mode: {:?}", mode)
+        }
+    }
+
+    pub fn lda(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Immediate | ZeroPage | ZeroPageX | Absolute | AbsoluteX | AbsoluteY | IndirectX | IndirectY => {
+                let (result, cycles) = self.load(mode);
+                self.registers.a = result;
+                cycles
+            }
+            _ => panic!("unsupported mode for lda : {:?}", mode)
+        }
+    }
+
+    pub fn ldx(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Immediate | ZeroPage | ZeroPageY | Absolute | AbsoluteY => {
+                let (result, cycles) = self.load(mode);
+                self.registers.x = result;
+                cycles
+            }
+            _ => panic!("unsupported mode for ldx : {:?}", mode)
+        }
+    }
+
+    pub fn ldy(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Immediate | ZeroPage | ZeroPageY | Absolute | AbsoluteY => {
+                let (result, cycles) = self.load(mode);
+                self.registers.y = result;
+                cycles
+            }
+            _ => panic!("unsupported mode for ldy : {:?}", mode)
+        }
+    }
+
+    /***** Store *****/
+
+    fn store(&mut self, mode: OperandMode, value: u8) -> u8 {
+        match mode {
+            ZeroPage => {
+                let address = self.zero_page();
+                self.io.write(address, value);
+                3
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                self.io.write(address, value);
+                4
+            }
+            Absolute => {
+                let address = self.absolute();
+                self.io.write(address, value);
+                4
+            }
+            AbsoluteX => {
+                let (address, carry) = self.absolute_x();
+                self.io.write(address, value);
+                5 + if carry { 1 } else { 0 }
+            }
+            AbsoluteY => {
+                let (address, carry) = self.absolute_y();
+                self.io.write(address, value);
+                5 + if carry { 1 } else { 0 }
+            }
+            IndirectX => {
+                let address = self.x_indirect();
+                self.io.write(address, value);
+                6
+            }
+            IndirectY => {
+                let (address, carry) = self.indirect_y();
+                self.io.write(address, value);
+                6 + if carry { 1 } else { 0 }
+            }
+
+            _ => panic!("unsupported mode: {:?}", mode)
+        }
+    }
+
+    /// 0x81, 0x85, 0x8D, 0x91, 0x96, 0x99, 0x9D - Store Accumulator
+    pub fn sta(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            ZeroPage | ZeroPageX | Absolute | AbsoluteX | AbsoluteY | IndirectX | IndirectY => self.store(mode, self.registers.a),
+            _ => panic!("unsupported mode for sta : {:?}", mode)
+        }
+    }
+
+    /// 0x86, 0x8E, 0x96 - Store X Register
+    pub fn stx(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            ZeroPage | ZeroPageY | Absolute => self.store(mode, self.registers.x),
+            _ => panic!("unsupported mode for stx : {:?}", mode)
+        }
+    }
+
+    /// 0x84, 0x8C, 0x94 - Store Y Register
+    pub fn sty(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            ZeroPage | ZeroPageX | Absolute => self.store(mode, self.registers.y),
+            _ => panic!("unsupported mode for sty : {:?}", mode)
+        }
     }
 
     /***** Branching *****/
@@ -587,31 +734,37 @@ impl CPU6502 {
         2
     }
 
+    /// 0x38 - Set Carry
     pub fn sec(&mut self) -> u8 {
         self.registers.set_carry(true);
         2
     }
 
+    /// 0x58 - Clear Interrupt
     pub fn cli(&mut self) -> u8 {
         self.registers.set_interrupt(false);
         2
     }
 
+    /// 0x78 - Set Interrupt
     pub fn sei(&mut self) -> u8 {
         self.registers.set_interrupt(true);
         2
     }
 
+    /// 0xB8 - Clear Overflow
     pub fn clv(&mut self) -> u8 {
         self.registers.set_overflow(false);
         2
     }
 
+    /// 0xD8 - Clear Decimal
     pub fn cld(&mut self) -> u8 {
         self.registers.set_decimal(false);
         2
     }
 
+    /// 0xF8 - Set Decimal
     pub fn sed(&mut self) -> u8 {
         self.registers.set_decimal(true);
         2

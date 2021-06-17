@@ -39,10 +39,75 @@ impl CPU6502 {
         0
     }
 
+    fn push(&mut self, _value: u8) {
 
-    pub fn relative(&mut self, bb: i8) -> (u16, bool) {
+    }
+
+    fn pull(&mut self) -> u8 {
+        0
+    }
+
+    /*********** Addressing Modes **********/
+
+    #[allow(dead_code)]
+    fn accumulator(&mut self) -> u8 {
+        self.registers.a
+    }
+
+    fn absolute(&mut self) -> u16 {
+        self.word()
+    }
+
+    fn absolute_x(&mut self) -> (u16, bool) {
+        let word = self.word();
+        let result = word + self.registers.x as u16;
+        (result, (word & 0xFF00) != (result & 0xFF00))
+    }
+
+    fn absolute_y(&mut self) -> (u16, bool) {
+        let word = self.word();
+        let result = word + self.registers.y as u16;
+        (result, (word & 0xFF00) != (result & 0xFF00))
+    }
+
+    fn immediate(&mut self) -> u16 {
+        self.byte() as u16
+    }
+
+    fn indirect(&mut self) -> u16 {
+        let word = self.word();
+        let lower = self.io.read(word);
+        let upper = self.io.read((word & 0xFF00) | ((word + 1) & 0x00FF));
+        ((upper as u16) << 8) | (lower as u16)
+    }
+
+    fn x_indirect(&mut self) -> u16 {
+        let byte = self.byte();
+        self.io.read(byte.wrapping_add(self.registers.x) as u16) as u16
+    }
+
+    fn indirect_y(&mut self) -> (u16, bool) {
+        let byte = self.byte();
+        let word = self.io.read_word(byte as u16);
+        let result = word + self.registers.y as u16;
+        (result, (word & 0xFF00) != (result & 0xFF00))
+    }
+
+    fn relative(&mut self, bb: i8) -> (u16, bool) {
         let result = ((self.registers.pc as u32 as i32) + bb as i32) as u16;
         (result, (self.registers.pc & 0xFF00) != (result & 0xFF00))
+    }
+
+    fn zero_page(&mut self) -> u16 {
+        self.byte() as u16
+    }
+
+    fn zero_page_x(&mut self) -> u16 {
+        self.byte().wrapping_add(self.registers.x) as u16
+    }
+
+    fn zero_page_y(&mut self) -> u16 {
+        self.byte().wrapping_add(self.registers.y) as u16
     }
 }
 
