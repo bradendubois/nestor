@@ -2,14 +2,16 @@ use crate::nestor::traits::MemoryMap;
 use crate::nestor::cartridge::Cartridge;
 
 pub struct IO {
-    cartridge: Cartridge
+    cartridge: Cartridge,
+    ram: Vec<u8>
 }
 
 impl IO {
 
     pub fn new(cartridge: Cartridge) -> IO {
         IO {
-            cartridge
+            cartridge,
+            ram: std::iter::repeat(0).take(0x0800).collect(),
         }
     }
 
@@ -31,10 +33,8 @@ impl MemoryMap for IO {
 
     fn read(&self, address: u16) -> u8 {
         match address {
-            0x0000..=0x07FF => 0x00,
-            0x0800..=0x0FFF => 0x00,
-            0x1000..=0x17FF => 0x00,
-            0x1800..=0x1FFF => 0x00,
+            0x0000..=0x07FF => self.ram[address as usize],
+            0x0800..=0x1FFF => self.ram[(address & 0x07FF) as usize],
             0x2000..=0x2007 => 0x00,
             0x2008..=0x3FFF => 0x00,
             0x4000..=0x4017 => 0x00,
@@ -47,10 +47,8 @@ impl MemoryMap for IO {
 
     fn write(&mut self, address: u16, value: u8) {
         match address {
-            0x0000..=0x07FF => (),
-            0x0800..=0x0FFF => (),
-            0x1000..=0x17FF => (),
-            0x1800..=0x1FFF => (),
+            0x0000..=0x07FF => self.ram[address as usize] = value,
+            0x0800..=0x1FFF => self.ram[(address & 0x07FF) as usize] = value,
             0x2000..=0x2007 => (),
             0x2008..=0x3FFF => (),
             0x4000..=0x4017 => (),

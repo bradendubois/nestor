@@ -24,14 +24,28 @@ impl CPU6502 {
         }
     }
 
+    pub fn test(&mut self) {
+        self.registers.pc = 0x0c000;
+        self.run();
+    }
+
     pub fn run(&mut self) {
-        let x = 0;
-        self.call(x);
+        loop {
+            println!("program counter {:#06X}", self.registers.pc);
+            let opcode = self.byte();
+            println!("fetched {:04X}", opcode);
+            self.call(opcode);
+
+            let mut s = String::new();
+            std::io::stdin().read_line(&mut s);
+        }
     }
 
     #[allow(dead_code)]
     pub fn byte(&mut self) -> u8 {
-        0
+        let result = self.io.read(self.registers.pc);
+        self.registers.pc = self.registers.pc.wrapping_add(1);
+        result
     }
 
     #[allow(dead_code)]
