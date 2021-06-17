@@ -28,6 +28,16 @@ impl CPU6502 {
         let x = 0;
         self.call(x);
     }
+
+    #[allow(dead_code)]
+    pub fn byte(&mut self) -> u8 {
+        0
+    }
+
+    #[allow(dead_code)]
+    pub fn word(&mut self) -> u16 {
+        0
+    }
 }
 
 
