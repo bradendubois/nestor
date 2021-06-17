@@ -5,7 +5,6 @@ use crate::nestor::enums::OperandMode;
 
 impl CPU6502 {
 
-
     pub fn call(&mut self, opcode: u8) -> u8 {
 
         #[allow(unreachable_patterns)]
@@ -286,7 +285,239 @@ impl CPU6502 {
         }
     }
 
-    // Unofficial Opcodes
+}
+
+/// Official Opcodes - ALU Operations
+impl CPU6502 {
+
+    pub fn adc(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn and(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn asl(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn bcc(&mut self) -> u8 {
+        0
+    }
+
+    pub fn bcs(&mut self) -> u8 {
+        0
+    }
+
+    pub fn beq(&mut self) -> u8 {
+        0
+    }
+
+    pub fn bit(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn bmi(&mut self) -> u8 {
+        0
+    }
+
+    pub fn bne(&mut self) -> u8 {
+        0
+    }
+
+    pub fn bpl(&mut self) -> u8 {
+        0
+    }
+
+    pub fn brk(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn bvc(&mut self) -> u8 {
+        0
+    }
+
+    pub fn bvs(&mut self) -> u8 {
+        0
+    }
+
+    pub fn clc(&mut self) -> u8 {
+        0
+    }
+
+    pub fn cld(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn cli(&mut self) -> u8 {
+        0
+    }
+
+    pub fn clv(&mut self) -> u8 {
+        0
+    }
+
+    pub fn cmp(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn cpx(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn cpy(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn dec(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn dex(&mut self) -> u8 {
+        0
+    }
+
+    pub fn dey(&mut self) -> u8 {
+        0
+    }
+
+    pub fn eor(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn inc(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn inx(&mut self) -> u8 {
+        0
+    }
+
+    pub fn iny(&mut self) -> u8 {
+        0
+    }
+
+    pub fn jmp(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn jsr(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn lda(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn ldx(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn ldy(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn lsr(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn nop(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn ora(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn pha(&mut self) -> u8 {
+        0
+    }
+
+    pub fn php(&mut self) -> u8 {
+        0
+    }
+
+    pub fn pla(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn plp(&mut self) -> u8 {
+        0
+    }
+
+    pub fn rol(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn ror(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn rti(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn rts(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn sbc(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn sec(&mut self) -> u8 {
+        0
+    }
+
+    pub fn sed(&mut self) -> u8 {
+        0
+    }
+
+    pub fn sei(&mut self) -> u8 {
+        0
+    }
+
+    pub fn sta(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn stx(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn sty(&mut self, _mode: OperandMode) -> u8 {
+        0
+    }
+
+    pub fn tax(&mut self) -> u8 {
+        0
+    }
+
+    pub fn tay(&mut self) -> u8 {
+        0
+    }
+
+    pub fn tsx(&mut self) -> u8 {
+        0
+    }
+
+    pub fn txa(&mut self) -> u8 {
+        0
+    }
+
+    pub fn txs(&mut self) -> u8 {
+        0
+    }
+
+    pub fn tya(&mut self) -> u8 {
+        0
+    }
+}
+
+
+/// Unofficial Opcodes
+impl CPU6502 {
 
     fn jam(&mut self) -> u8 {
         0
@@ -371,5 +602,4 @@ impl CPU6502 {
     fn anc(&mut self, _mode: OperandMode) -> u8{
         0
     }
-
 }
