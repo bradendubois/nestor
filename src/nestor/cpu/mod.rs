@@ -65,16 +65,21 @@ impl CPU6502 {
 
     }
 
-    fn alu_and(&mut self, _value: u8) {
-
+    fn alu_and(&mut self, value: u8) {
+        self.registers.set_negative(false);
+        self.registers.set_zero(self.registers.a & value == 0);
     }
 
-    fn alu_asl(&mut self, _value: u8) {
-
+    fn alu_asl(&mut self, value: u8) {
+        self.registers.set_negative(false);
+        self.registers.set_zero(value << 1 == 0);
+        self.registers.set_carry(value & 0x80 != 0);
     }
 
-    fn alu_bit(&mut self, _value: u8) {
-
+    fn alu_bit(&mut self, value: u8) {
+        self.registers.set_negative(value & 0x80 != 0);
+        self.registers.set_overflow(value & 0x40 != 0);
+        self.registers.set_zero(self.registers.a & value == 0);
     }
 
     fn alu_cmp(&mut self, _src: u8, _value: u8) {

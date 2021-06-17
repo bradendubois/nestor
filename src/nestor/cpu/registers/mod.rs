@@ -24,7 +24,7 @@ impl Registers {
         }
     }
 
-    /***** Negative - Bit 7 (0x80) *****/
+    /***** Negative (V) - Bit 7 (0x80) *****/
     pub fn set_negative(&mut self, enabled: bool) {
         match enabled {
             true  => self.p |=  0x80,
@@ -34,7 +34,7 @@ impl Registers {
 
     pub fn negative(&self) -> bool { self.p & 0x80 != 0 }
 
-    /// Overflow - Bit 6 (0x40)
+    /// Overflow (V) - Bit 6 (0x40)
     pub fn set_overflow(&mut self, enabled: bool) {
         match enabled {
             true  => self.p |=  0x40,
@@ -46,7 +46,7 @@ impl Registers {
 
     /// TODO - "B Flag" on bits 5,4
 
-    /// Decimal - Bit 3 (0x08)
+    /// Decimal (D) - Bit 3 (0x08)
     pub fn set_decimal(&mut self, enabled: bool) {
         match enabled {
             true  => self.p |=  0x08,
@@ -56,7 +56,7 @@ impl Registers {
 
     pub fn decimal(&self) -> bool { self.p & 0x08 != 0 }
 
-    /// Interrupt - Bit 2 (0x04)
+    /// Interrupt (I) - Bit 2 (0x04)
     pub fn set_interrupt(&mut self, enabled: bool) {
         match enabled {
             true  => self.p |=  0x04,
@@ -66,7 +66,7 @@ impl Registers {
 
     pub fn interrupt(&self) -> bool { self.p & 0x04 != 0 }
 
-    /// Zero - Bit 1 (0x02)
+    /// Zero (Z) - Bit 1 (0x02)
     pub fn set_zero(&mut self, enabled: bool) {
         match enabled {
             true  => self.p |=  0x02,
@@ -76,7 +76,7 @@ impl Registers {
 
     pub fn zero(&self) -> bool { self.p & 0x02 != 0 }
 
-    /// Carry - Bit 0 (0x01)
+    /// Carry (C) - Bit 0 (0x01)
     pub fn set_carry(&mut self, enabled: bool) {
         match enabled {
             true  => self.p |=  0x01,
