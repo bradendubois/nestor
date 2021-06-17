@@ -44,7 +44,7 @@ impl CPU6502 {
             0x1E => self.asl(AbsoluteX),
             0x1F => self.slo(AbsoluteX),
 
-            0x20 => self.jsr(Absolute),
+            0x20 => self.jsr(),
             0x21 => self.and(IndirectX),
             0x22 => self.jam(),
             0x23 => self.rla(IndirectX),
@@ -78,7 +78,7 @@ impl CPU6502 {
             0x3E => self.rol(AbsoluteX),
             0x3F => self.rla(AbsoluteX),
 
-            0x40 => self.rti(Implied),
+            0x40 => self.rti(),
             0x41 => self.eor(IndirectX),
             0x42 => self.jam(),
             0x43 => self.sre(IndirectX),
@@ -112,7 +112,7 @@ impl CPU6502 {
             0x5E => self.lsr(AbsoluteX),
             0x5F => self.sre(AbsoluteX),
 
-            0x60 => self.rts(Implied),
+            0x60 => self.rts(),
             0x61 => self.adc(IndirectX),
             0x62 => self.jam(),
             0x63 => self.rra(IndirectX),
@@ -291,59 +291,8 @@ impl CPU6502 {
 /// Official Opcodes
 impl CPU6502 {
 
-    pub fn inc(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for inc : {:?}", mode)
-        }
-    }
 
-    pub fn jsr(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for jsr : {:?}", mode)
-        }
-    }
 
-    pub fn lsr(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for lsr : {:?}", mode)
-        }
-    }
-
-    pub fn nop(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for nop : {:?}", mode)
-        }
-    }
-
-    pub fn ora(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for ora : {:?}", mode)
-        }
-    }
-
-    pub fn rol(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for rol : {:?}", mode)
-        }
-    }
-
-    pub fn ror(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for ror : {:?}", mode)
-        }
-    }
-
-    pub fn rti(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for rti : {:?}", mode)
-        }
-    }
-
-    pub fn rts(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for rts : {:?}", mode)
-        }
-    }
 
     pub fn sbc(&mut self, mode: OperandMode) -> u8 {
         match mode {
@@ -625,11 +574,11 @@ impl CPU6502 {
                 6
             }
             AbsoluteX => {
-                let (address, carry) = self.absolute_x();
+                let (address, _carry) = self.absolute_x();
                 let value = self.io.read(address);
                 let value = self.alu_dec(value);
                 self.io.write(address, value);
-                6 + if carry { 1 } else { 0 }
+                7
             }
             _ => panic!("unsupported mode for dec : {:?}", mode)
         }
@@ -690,6 +639,260 @@ impl CPU6502 {
         }
     }
 
+    /// 0xE6, 0xEE, 0xF6, 0xFE - Increment Memory
+    pub fn inc(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                let value = self.alu_inc(value);
+                self.io.write(address, value);
+                5
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                let value = self.alu_inc(value);
+                self.io.write(address, value);
+                6
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                let value = self.alu_inc(value);
+                self.io.write(address, value);
+                6
+            }
+            AbsoluteX => {
+                let (address, _carry) = self.absolute_x();
+                let value = self.io.read(address);
+                let value = self.alu_inc(value);
+                self.io.write(address, value);
+                7
+            }
+            _ => panic!("unsupported mode for dec : {:?}", mode)
+        }
+    }
+
+    /// 0x4C, 0x6C - Jump
+    pub fn jmp(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Absolute => {
+                let address = self.absolute();
+                self.registers.pc = address;
+                3
+            }
+            Indirect => {
+                let address = self.indirect();
+                self.registers.pc = address;
+                5
+            }
+            _ => panic!("unsupported mode for jmp : {:?}", mode)
+        }
+    }
+
+    /// 0x20 - Jump to Subroutine
+    pub fn jsr(&mut self) -> u8 {
+        let address = self.absolute();
+        self.push_word(self.registers.pc);
+        self.registers.pc = address;
+        6
+    }
+
+    /// 0x46, 0x4E, 0x4A, 0x56, 0x5E - Logical Shift Right
+    pub fn lsr(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Accumulator => {
+                let value = self.accumulator();
+                self.alu_lsr(value);
+                2
+            }
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                self.alu_lsr(value);
+                5
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                self.alu_lsr(value);
+                6
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                self.alu_lsr(value);
+                6
+            }
+            AbsoluteX => {
+                let (address, _carry) = self.absolute_x();
+                let value = self.io.read(address);
+                self.alu_lsr(value);
+                7
+            }
+            _ => panic!("unsupported mode for lsr : {:?}", mode)
+        }
+    }
+
+    /// 0xEA
+    pub fn nop(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Implied => 2,       // Normal case
+
+            // All 'unofficial' opcodes that consume data / advance the PC
+            Immediate => { let _addr = self.immediate(); 2 }
+            ZeroPage => { let _addr = self.zero_page(); 3 }
+            ZeroPageX => { let _addr = self.zero_page_x(); 4 }
+            Absolute => { let _addr = self.absolute(); 4 }
+            AbsoluteX => {
+                let (_addr, carry) = self.absolute_x();
+                4 + if carry { 1 } else { 0 }
+            }
+            _ => panic!("unsupported mode for nop : {:?}", mode)
+        }
+    }
+
+    /// 0x01, 0x05, 0x09, 0x0D, 0x11, 0x15, 0x19, 0x1D - Bitwise OR with Accumulator
+    pub fn ora(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Immediate => {
+                let value = self.immediate();
+                self.alu_ora(value);
+                2
+            }
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                self.alu_ora(value);
+                3
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                self.alu_ora(value);
+                4
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                self.alu_ora(value);
+                4
+            }
+            AbsoluteX => {
+                let (address, carry) = self.absolute_x();
+                let value = self.io.read(address);
+                self.alu_ora(value);
+                4 + if carry { 1 } else { 0 }
+            }
+            AbsoluteY => {
+                let (address, carry) = self.absolute_y();
+                let value = self.io.read(address);
+                self.alu_ora(value);
+                4 + if carry { 1 } else { 0 }
+            }
+            IndirectX => {
+                let address = self.x_indirect();
+                let value = self.io.read(address);
+                self.alu_ora(value);
+                6
+            }
+            IndirectY => {
+                let (address, carry)= self.indirect_y();
+                let value = self.io.read(address);
+                self.alu_ora(value);
+                5 + if carry { 1 } else { 0 }
+            }
+            _ => panic!("unsupported mode for ora : {:?}", mode)
+        }
+    }
+
+    /// 0x26, 0x2A, 0x2E, 0x36, 0x3E - Rotate Left
+    pub fn rol(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Accumulator => {
+                let value = self.accumulator();
+                self.alu_rol(value);
+                2
+            }
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                self.alu_rol(value);
+                5
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                self.alu_rol(value);
+                6
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                self.alu_rol(value);
+                6
+            }
+            AbsoluteX => {
+                let (address, _carry) = self.absolute_x();
+                let value = self.io.read(address);
+                self.alu_rol(value);
+                7
+            }
+            _ => panic!("unsupported mode for lsr : {:?}", mode)
+        }
+    }
+
+    /// 0x66, 0x6A, 0x6E, 0x76, 0x7E - Rotate Right
+    pub fn ror(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Accumulator => {
+                let value = self.accumulator();
+                self.alu_ror(value);
+                2
+            }
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                self.alu_ror(value);
+                5
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                self.alu_ror(value);
+                6
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                self.alu_ror(value);
+                6
+            }
+            AbsoluteX => {
+                let (address, _carry) = self.absolute_x();
+                let value = self.io.read(address);
+                self.alu_ror(value);
+                7
+            }
+            _ => panic!("unsupported mode for lsr : {:?}", mode)
+        }
+    }
+
+    /// 0x40 - Return From Interrupt
+    pub fn rti(&mut self) -> u8 {
+        let p = self.pull();
+        let pc = self.pull_word();
+        self.registers.p = p;
+        self.registers.pc = pc;
+        6
+    }
+
+    /// 0x60 - Return from Subroutine
+    pub fn rts(&mut self) -> u8 {
+        self.registers.pc = self.pull_word().wrapping_add(1);
+        6
+    }
 
     /***** Stack Instruction *****/
 
@@ -785,25 +988,6 @@ impl CPU6502 {
         self.registers.set_negative(false);
         self.registers.set_zero(self.registers.x == 0);
         2
-    }
-
-    /***** Jump *****/
-
-    /// 0x4C, 0x6C - Jump
-    pub fn jmp(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            Absolute => {
-                let address = self.absolute();
-                self.registers.pc = address;
-                3
-            }
-            Indirect => {
-                let address = self.indirect();
-                self.registers.pc = address;
-                5
-            }
-            _ => panic!("unsupported mode for jmp : {:?}", mode)
-        }
     }
 
     /***** Load *****/

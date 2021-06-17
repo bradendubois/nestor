@@ -39,11 +39,23 @@ impl CPU6502 {
         0
     }
 
+    #[allow(dead_code)]
     fn push(&mut self, _value: u8) {
 
     }
 
+    #[allow(dead_code)]
     fn pull(&mut self) -> u8 {
+        0
+    }
+
+    #[allow(dead_code)]
+    fn push_word(&mut self, _value: u16) {
+
+    }
+
+    #[allow(dead_code)]
+    fn pull_word(&mut self) -> u16 {
         0
     }
 
@@ -74,6 +86,26 @@ impl CPU6502 {
     }
 
     fn alu_xor(&mut self, _value: u8) {
+
+    }
+
+    fn alu_inc(&mut self, _value: u8) -> u8 {
+        0
+    }
+
+    fn alu_lsr(&mut self, _value: u8) {
+
+    }
+
+    fn alu_ora(&mut self, _value: u8) {
+
+    }
+
+    fn alu_rol(&mut self, _value: u8) {
+
+    }
+
+    fn alu_ror(&mut self, _value: u8) {
 
     }
 
