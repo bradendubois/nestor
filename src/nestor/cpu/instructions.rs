@@ -600,14 +600,92 @@ impl CPU6502 {
         }
     }
 
+    /// 0xC6, 0xCE, 0xD6, 0xDE - Decrement Memory
     pub fn dec(&mut self, mode: OperandMode) -> u8 {
         match mode {
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                let value = self.alu_dec(value);
+                self.io.write(address, value);
+                5
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                let value = self.alu_dec(value);
+                self.io.write(address, value);
+                6
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                let value = self.alu_dec(value);
+                self.io.write(address, value);
+                6
+            }
+            AbsoluteX => {
+                let (address, carry) = self.absolute_x();
+                let value = self.io.read(address);
+                let value = self.alu_dec(value);
+                self.io.write(address, value);
+                6 + if carry { 1 } else { 0 }
+            }
             _ => panic!("unsupported mode for dec : {:?}", mode)
         }
     }
 
+    /// 0x41, 0x45, 0x49, 0x4D, 0x51, 0x55, 0x59, 0x5D - Bitwise Exclusive OR
     pub fn eor(&mut self, mode: OperandMode) -> u8 {
         match mode {
+            Immediate => {
+                let value = self.immediate();
+                self.alu_xor(value);
+                2
+            }
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                self.alu_xor(value);
+                3
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                self.alu_xor(value);
+                4
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                self.alu_xor(value);
+                4
+            }
+            AbsoluteX => {
+                let (address, carry) = self.absolute_x();
+                let value = self.io.read(address);
+                self.alu_xor(value);
+                4 + if carry { 1 } else { 0 }
+            }
+            AbsoluteY => {
+                let (address, carry) = self.absolute_y();
+                let value = self.io.read(address);
+                self.alu_xor(value);
+                4 + if carry { 1 } else { 0 }
+            }
+            IndirectX => {
+                let address = self.x_indirect();
+                let value = self.io.read(address);
+                self.alu_xor(value);
+                6
+            }
+            IndirectY => {
+                let (address, carry) = self.indirect_y();
+                let value = self.io.read(address);
+                self.alu_xor(value);
+                5 + if carry { 1 } else { 0 }
+            }
+
             _ => panic!("unsupported mode for eor : {:?}", mode)
         }
     }

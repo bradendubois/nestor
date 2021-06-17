@@ -69,6 +69,14 @@ impl CPU6502 {
 
     }
 
+    fn alu_dec(&mut self, _value: u8) -> u8 {
+        0
+    }
+
+    fn alu_xor(&mut self, _value: u8) {
+
+    }
+
     /*********** Addressing Modes **********/
 
     #[allow(dead_code)]
