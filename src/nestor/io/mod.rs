@@ -39,7 +39,7 @@ impl MemoryMap for IO {
             0x2008..=0x3FFF => 0x00,
             0x4000..=0x4017 => 0x00,
             0x4018..=0x401F => 0x00,
-            0x4020..=0xFFFF => self.cartridge.read(address - 0x4020),
+            0x4020..=0xFFFF => self.cartridge.read(address),
 
             _ => panic!("unmapped address: {:#06X}", address)
         }
@@ -53,7 +53,7 @@ impl MemoryMap for IO {
             0x2008..=0x3FFF => (),
             0x4000..=0x4017 => (),
             0x4018..=0x401F => (),
-            0x4020..=0xFFFF => self.cartridge.write(address - 0x4020, value),
+            0x4020..=0xFFFF => self.cartridge.write(address, value),
 
             _ => panic!("unmapped address: {:#06X}", address)
         };

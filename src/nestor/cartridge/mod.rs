@@ -1,18 +1,24 @@
 mod mappers;
+mod ines;
 
-use crate::nestor::traits::MemoryMap;
+use crate::nestor::traits::{MemoryMap, Mapper};
+use crate::nestor::cartridge::mappers::get_mapper;
 
 
 pub struct Cartridge {
-    data: Vec<u8>
+    // data: Vec<u8>
+    mapper: Box<dyn Mapper>
 }
 
 
 impl Cartridge {
 
     pub fn new(rom_path: &str) -> Cartridge {
+
+        let data = std::fs::read(rom_path).unwrap();
+
         Cartridge {
-            data: std::fs::read(rom_path).unwrap()
+            mapper: get_mapper(data)
         }
     }
 }
@@ -21,24 +27,11 @@ impl Cartridge {
 impl MemoryMap for Cartridge {
 
     fn read(&self, address: u16) -> u8 {
-
-        let header = &self.data[0..=15];
-
-        println!("NES: {:#04X} {:#04X} {:#04X} {:#04X}", header[0], header[1], header[2], header[3]);
-        println!("PRG ROM Size (16KB Units): {:#04X}", header[4]);
-        println!("CHR ROM Size  (8KB Units): {:#04X}", header[5]);
-        println!("Flags  6: {:#010b}", header[6]);
-        println!("Flags  7: {:#010b}", header[7]);
-        println!("Flags  8: {:#010b}", header[8]);
-        println!("Flags  9: {:#010b}", header[9]);
-        println!("Flags 10: {:#010b}", header[10]);
-
-        println!("{:#04X} {:#04X} {:#04X} {:#04X}", self.data[0], self.data[1], self.data[2], self.data[3]);
-        println!("Cartridge read for address: {:#06X} in cartridge of size {:#06X}", address, self.data.len());
-        println!("{:?}", self.data);
-        std::process::exit(0);
-        self.data[address as usize]
+        println!("Cartridge read for address: {:#06X}", address);
+        self.mapper.read(address)
     }
 
-    fn write(&mut self, _address: u16, _value: u8) {    }
+    fn write(&mut self, address: u16, value: u8) {
+        self.mapper.write(address, value);
+    }
 }
