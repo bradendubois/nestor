@@ -109,6 +109,10 @@ impl CPU6502 {
 
     }
 
+    fn alu_sbc(&mut self, _value: u8) {
+
+    }
+
     /*********** Addressing Modes **********/
 
     #[allow(dead_code)]

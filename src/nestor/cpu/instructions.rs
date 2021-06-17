@@ -14,7 +14,7 @@ impl CPU6502 {
             0x01 => self.ora(IndirectX),
             0x02 => self.jam(),
             0x03 => self.slo(IndirectX),
-            0x04 => self.nop(ZeroPage),
+            0x04 => self.nop_unofficial(ZeroPage),
             0x05 => self.ora(ZeroPage),
             0x06 => self.asl(ZeroPage),
             0x07 => self.slo(ZeroPage),
@@ -22,7 +22,7 @@ impl CPU6502 {
             0x09 => self.ora(Immediate),
             0x0A => self.asl(Accumulator),
             0x0B => self.anc(Immediate),
-            0x0C => self.nop(Absolute),
+            0x0C => self.nop_unofficial(Absolute),
             0x0D => self.ora(Absolute),
             0x0E => self.asl(Absolute),
             0x0F => self.slo(Absolute),
@@ -31,15 +31,15 @@ impl CPU6502 {
             0x11 => self.ora(IndirectY),
             0x12 => self.jam(),
             0x13 => self.slo(IndirectY),
-            0x14 => self.nop(ZeroPageX),
+            0x14 => self.nop_unofficial(ZeroPageX),
             0x15 => self.ora(ZeroPageX),
             0x16 => self.asl(ZeroPageX),
             0x17 => self.slo(ZeroPageX),
             0x18 => self.clc(),
             0x19 => self.ora(AbsoluteY),
-            0x1A => self.nop(Implied),
+            0x1A => self.nop_unofficial(Implied),
             0x1B => self.slo(AbsoluteY),
-            0x1C => self.nop(AbsoluteX),
+            0x1C => self.nop_unofficial(AbsoluteX),
             0x1D => self.ora(AbsoluteX),
             0x1E => self.asl(AbsoluteX),
             0x1F => self.slo(AbsoluteX),
@@ -65,15 +65,15 @@ impl CPU6502 {
             0x31 => self.and(IndirectY),
             0x32 => self.jam(),
             0x33 => self.rla(IndirectY),
-            0x34 => self.nop(ZeroPageX),
+            0x34 => self.nop_unofficial(ZeroPageX),
             0x35 => self.and(ZeroPageX),
             0x36 => self.rol(ZeroPageX),
             0x37 => self.rla(ZeroPageX),
             0x38 => self.sec(),
             0x39 => self.and(AbsoluteY),
-            0x3A => self.nop(Implied),
+            0x3A => self.nop_unofficial(Implied),
             0x3B => self.rla(AbsoluteY),
-            0x3C => self.nop(AbsoluteX),
+            0x3C => self.nop_unofficial(AbsoluteX),
             0x3D => self.and(AbsoluteX),
             0x3E => self.rol(AbsoluteX),
             0x3F => self.rla(AbsoluteX),
@@ -82,7 +82,7 @@ impl CPU6502 {
             0x41 => self.eor(IndirectX),
             0x42 => self.jam(),
             0x43 => self.sre(IndirectX),
-            0x44 => self.nop(ZeroPage),
+            0x44 => self.nop_unofficial(ZeroPage),
             0x45 => self.eor(ZeroPage),
             0x46 => self.lsr(ZeroPage),
             0x47 => self.sre(ZeroPage),
@@ -99,15 +99,15 @@ impl CPU6502 {
             0x51 => self.eor(IndirectY),
             0x52 => self.jam(),
             0x53 => self.sre(IndirectY),
-            0x54 => self.nop(ZeroPageX),
+            0x54 => self.nop_unofficial(ZeroPageX),
             0x55 => self.eor(ZeroPageX),
             0x56 => self.lsr(ZeroPageX),
             0x57 => self.sre(ZeroPageX),
             0x58 => self.cli(),
             0x59 => self.eor(AbsoluteY),
-            0x5A => self.nop(Implied),
+            0x5A => self.nop_unofficial(Implied),
             0x5B => self.sre(AbsoluteY),
-            0x5C => self.nop(AbsoluteX),
+            0x5C => self.nop_unofficial(AbsoluteX),
             0x5D => self.eor(AbsoluteX),
             0x5E => self.lsr(AbsoluteX),
             0x5F => self.sre(AbsoluteX),
@@ -116,7 +116,7 @@ impl CPU6502 {
             0x61 => self.adc(IndirectX),
             0x62 => self.jam(),
             0x63 => self.rra(IndirectX),
-            0x64 => self.nop(ZeroPage),
+            0x64 => self.nop_unofficial(ZeroPage),
             0x65 => self.adc(ZeroPage),
             0x66 => self.ror(ZeroPage),
             0x67 => self.rra(ZeroPage),
@@ -133,29 +133,29 @@ impl CPU6502 {
             0x71 => self.adc(IndirectY),
             0x72 => self.jam(),
             0x73 => self.rra(IndirectY),
-            0x74 => self.nop(ZeroPageX),
+            0x74 => self.nop_unofficial(ZeroPageX),
             0x75 => self.adc(ZeroPageX),
             0x76 => self.ror(ZeroPageX),
             0x77 => self.rra(ZeroPageX),
             0x78 => self.sei(),
             0x79 => self.adc(AbsoluteY),
-            0x7A => self.nop(Implied),
+            0x7A => self.nop_unofficial(Implied),
             0x7B => self.rra(AbsoluteY),
-            0x7C => self.nop(AbsoluteX),
+            0x7C => self.nop_unofficial(AbsoluteX),
             0x7D => self.adc(AbsoluteX),
             0x7E => self.ror(AbsoluteX),
             0x7F => self.rra(AbsoluteX),
 
-            0x80 => self.nop(Immediate),
+            0x80 => self.nop_unofficial(Immediate),
             0x81 => self.sta(IndirectX),
-            0x82 => self.nop(Immediate),
+            0x82 => self.nop_unofficial(Immediate),
             0x83 => self.sax(IndirectX),
             0x84 => self.sty(ZeroPage),
             0x85 => self.sta(ZeroPage),
             0x86 => self.stx(ZeroPage),
             0x87 => self.sax(ZeroPage),
             0x88 => self.dey(),
-            0x89 => self.nop(Immediate),
+            0x89 => self.nop_unofficial(Immediate),
             0x8A => self.txa(),
             0x8B => self.ane(Immediate),
             0x8C => self.sty(Absolute),
@@ -216,7 +216,7 @@ impl CPU6502 {
 
             0xC0 => self.cpy(Immediate),
             0xC1 => self.cmp(IndirectX),
-            0xC2 => self.nop(Immediate),
+            0xC2 => self.nop_unofficial(Immediate),
             0xC3 => self.dcp(IndirectX),
             0xC4 => self.cpy(ZeroPage),
             0xC5 => self.cmp(ZeroPage),
@@ -235,22 +235,22 @@ impl CPU6502 {
             0xD1 => self.cmp(IndirectY),
             0xD2 => self.jam(),
             0xD3 => self.dcp(IndirectY),
-            0xD4 => self.nop(ZeroPageX),
+            0xD4 => self.nop_unofficial(ZeroPageX),
             0xD5 => self.cmp(ZeroPageX),
             0xD6 => self.dec(ZeroPageX),
             0xD7 => self.dcp(ZeroPageX),
             0xD8 => self.cld(),
             0xD9 => self.cmp(AbsoluteY),
-            0xDA => self.nop(Implied),
+            0xDA => self.nop_unofficial(Implied),
             0xDB => self.dcp(AbsoluteY),
-            0xDC => self.nop(AbsoluteX),
+            0xDC => self.nop_unofficial(AbsoluteX),
             0xDD => self.cmp(AbsoluteX),
             0xDE => self.dec(AbsoluteX),
             0xDF => self.dcp(AbsoluteX),
 
             0xE0 => self.cpx(Immediate),
             0xE1 => self.sbc(IndirectX),
-            0xE2 => self.nop(Immediate),
+            0xE2 => self.nop_unofficial(Immediate),
             0xE3 => self.isc(IndirectX),
             0xE4 => self.cpx(ZeroPage),
             0xE5 => self.sbc(ZeroPage),
@@ -258,7 +258,7 @@ impl CPU6502 {
             0xE7 => self.isc(ZeroPage),
             0xE8 => self.inx(),
             0xE9 => self.sbc(Immediate),
-            0xEA => self.nop(Implied),
+            0xEA => self.nop(),
             0xEB => self.usbc(Immediate),
             0xEC => self.cpx(Absolute),
             0xED => self.sbc(Absolute),
@@ -269,15 +269,15 @@ impl CPU6502 {
             0xF1 => self.sbc(IndirectY),
             0xF2 => self.jam(),
             0xF3 => self.isc(IndirectY),
-            0xF4 => self.nop(ZeroPageX),
+            0xF4 => self.nop_unofficial(ZeroPageX),
             0xF5 => self.sbc(ZeroPageX),
             0xF6 => self.inc(ZeroPageX),
             0xF7 => self.isc(ZeroPageX),
             0xF8 => self.sed(),
             0xF9 => self.sbc(AbsoluteY),
-            0xFA => self.nop(Implied),
+            0xFA => self.nop_unofficial(Implied),
             0xFB => self.isc(AbsoluteY),
-            0xFC => self.nop(AbsoluteX),
+            0xFC => self.nop_unofficial(AbsoluteX),
             0xFD => self.sbc(AbsoluteX),
             0xFE => self.inc(AbsoluteX),
             0xFF => self.isc(AbsoluteX),
@@ -290,15 +290,6 @@ impl CPU6502 {
 
 /// Official Opcodes
 impl CPU6502 {
-
-
-
-
-    pub fn sbc(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for sbc : {:?}", mode)
-        }
-    }
 
     /// 0x61, 0x65, 0x69, 0x6D, 0x71, 0x75, 0x79, 0x7D  - Add with Carry
     pub fn adc(&mut self, mode: OperandMode) -> u8 {
@@ -736,21 +727,8 @@ impl CPU6502 {
     }
 
     /// 0xEA
-    pub fn nop(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            Implied => 2,       // Normal case
-
-            // All 'unofficial' opcodes that consume data / advance the PC
-            Immediate => { let _addr = self.immediate(); 2 }
-            ZeroPage => { let _addr = self.zero_page(); 3 }
-            ZeroPageX => { let _addr = self.zero_page_x(); 4 }
-            Absolute => { let _addr = self.absolute(); 4 }
-            AbsoluteX => {
-                let (_addr, carry) = self.absolute_x();
-                4 + if carry { 1 } else { 0 }
-            }
-            _ => panic!("unsupported mode for nop : {:?}", mode)
-        }
+    pub fn nop(&mut self) -> u8 {
+        2
     }
 
     /// 0x01, 0x05, 0x09, 0x0D, 0x11, 0x15, 0x19, 0x1D - Bitwise OR with Accumulator
@@ -892,6 +870,60 @@ impl CPU6502 {
     pub fn rts(&mut self) -> u8 {
         self.registers.pc = self.pull_word().wrapping_add(1);
         6
+    }
+
+    /// 0xE1, 0xE5, 0xE9, 0xED, 0xF1, 0xF5, 0xF9, 0xFD - Subtract with Carry
+    pub fn sbc(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Immediate => {
+                let value = self.immediate();
+                self.alu_sbc(value);
+                2
+            }
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                self.alu_sbc(value);
+                3
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                self.alu_sbc(value);
+                4
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                self.alu_sbc(value);
+                4
+            }
+            AbsoluteX => {
+                let (address, carry) = self.absolute_x();
+                let value = self.io.read(address);
+                self.alu_sbc(value);
+                4 + if carry { 1 } else { 0 }
+            }
+            AbsoluteY => {
+                let (address, carry) = self.absolute_y();
+                let value = self.io.read(address);
+                self.alu_sbc(value);
+                4 + if carry { 1 } else { 0 }
+            }
+            IndirectX => {
+                let address = self.x_indirect();
+                let value = self.io.read(address);
+                self.alu_sbc(value);
+                6
+            }
+            IndirectY => {
+                let (address, carry) = self.indirect_y();
+                let value = self.io.read(address);
+                self.alu_sbc(value);
+                5 + if carry { 1 } else { 0 }
+            }
+            _ => panic!("unsupported mode for sbc : {:?}", mode)
+        }
     }
 
     /***** Stack Instruction *****/
@@ -1239,6 +1271,21 @@ impl CPU6502 {
 
     fn jam(&mut self) -> u8 {
         0
+    }
+
+    pub fn nop_unofficial(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Implied => 2,
+            Immediate => { let _addr = self.immediate(); 2 }
+            ZeroPage => { let _addr = self.zero_page(); 3 }
+            ZeroPageX => { let _addr = self.zero_page_x(); 4 }
+            Absolute => { let _addr = self.absolute(); 4 }
+            AbsoluteX => {
+                let (_addr, carry) = self.absolute_x();
+                4 + if carry { 1 } else { 0 }
+            }
+            _ => panic!("unsupported mode for unofficial nop : {:?}", mode)
+        }
     }
 
     fn usbc(&mut self, _mode: OperandMode) -> u8 {
