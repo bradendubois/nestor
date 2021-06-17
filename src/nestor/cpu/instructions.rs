@@ -405,31 +405,35 @@ impl CPU6502 {
         match mode {
             Accumulator => {
                 let value = self.accumulator();
-                self.alu_asl(value);
+                self.registers.a = self.alu_asl(value);
                 2
             }
             ZeroPage => {
                 let address = self.zero_page();
                 let value = self.io.read(address);
-                self.alu_asl(value);
+                let result = self.alu_asl(value);
+                self.io.write(address, result);
                 5
             }
             ZeroPageX => {
                 let address = self.zero_page_x();
                 let value = self.io.read(address);
-                self.alu_asl(value);
+                let result = self.alu_asl(value);
+                self.io.write(address, result);
                 6
             }
             Absolute => {
                 let address = self.absolute();
                 let value = self.io.read(address);
-                self.alu_asl(value);
+                let result = self.alu_asl(value);
+                self.io.write(address, result);
                 6
             }
             AbsoluteX => {
                 let (address, carry) = self.absolute_x();
                 let value = self.io.read(address);
-                self.alu_asl(value);
+                let result = self.alu_asl(value);
+                self.io.write(address, result);
                 6 + if carry { 1 } else { 0 }
             }
             _ => panic!("unsupported mode for asl : {:?}", mode)
@@ -695,31 +699,35 @@ impl CPU6502 {
         match mode {
             Accumulator => {
                 let value = self.accumulator();
-                self.alu_lsr(value);
+                self.registers.a = self.alu_lsr(value);
                 2
             }
             ZeroPage => {
                 let address = self.zero_page();
                 let value = self.io.read(address);
-                self.alu_lsr(value);
+                let result = self.alu_lsr(value);
+                self.io.write(address, result);
                 5
             }
             ZeroPageX => {
                 let address = self.zero_page_x();
                 let value = self.io.read(address);
-                self.alu_lsr(value);
+                let result = self.alu_lsr(value);
+                self.io.write(address, result);
                 6
             }
             Absolute => {
                 let address = self.absolute();
                 let value = self.io.read(address);
-                self.alu_lsr(value);
+                let result = self.alu_lsr(value);
+                self.io.write(address, result);
                 6
             }
             AbsoluteX => {
                 let (address, _carry) = self.absolute_x();
                 let value = self.io.read(address);
-                self.alu_lsr(value);
+                let result = self.alu_lsr(value);
+                self.io.write(address, result);
                 7
             }
             _ => panic!("unsupported mode for lsr : {:?}", mode)
@@ -790,31 +798,35 @@ impl CPU6502 {
         match mode {
             Accumulator => {
                 let value = self.accumulator();
-                self.alu_rol(value);
+                self.registers.a = self.alu_rol(value);
                 2
             }
             ZeroPage => {
                 let address = self.zero_page();
                 let value = self.io.read(address);
-                self.alu_rol(value);
+                let result = self.alu_rol(value);
+                self.io.write(address, result);
                 5
             }
             ZeroPageX => {
                 let address = self.zero_page_x();
                 let value = self.io.read(address);
-                self.alu_rol(value);
+                let result = self.alu_rol(value);
+                self.io.write(address, result);
                 6
             }
             Absolute => {
                 let address = self.absolute();
                 let value = self.io.read(address);
-                self.alu_rol(value);
+                let result = self.alu_rol(value);
+                self.io.write(address, result);
                 6
             }
             AbsoluteX => {
                 let (address, _carry) = self.absolute_x();
                 let value = self.io.read(address);
-                self.alu_rol(value);
+                let result = self.alu_rol(value);
+                self.io.write(address, result);
                 7
             }
             _ => panic!("unsupported mode for lsr : {:?}", mode)
@@ -826,31 +838,35 @@ impl CPU6502 {
         match mode {
             Accumulator => {
                 let value = self.accumulator();
-                self.alu_ror(value);
+                self.registers.a = self.alu_ror(value);
                 2
             }
             ZeroPage => {
                 let address = self.zero_page();
                 let value = self.io.read(address);
-                self.alu_ror(value);
+                let result = self.alu_ror(value);
+                self.io.write(address, result);
                 5
             }
             ZeroPageX => {
                 let address = self.zero_page_x();
                 let value = self.io.read(address);
-                self.alu_ror(value);
+                let result = self.alu_ror(value);
+                self.io.write(address, result);
                 6
             }
             Absolute => {
                 let address = self.absolute();
                 let value = self.io.read(address);
-                self.alu_ror(value);
+                let result = self.alu_ror(value);
+                self.io.write(address, result);
                 6
             }
             AbsoluteX => {
                 let (address, _carry) = self.absolute_x();
                 let value = self.io.read(address);
-                self.alu_ror(value);
+                let result = self.alu_ror(value);
+                self.io.write(address, result);
                 7
             }
             _ => panic!("unsupported mode for lsr : {:?}", mode)

@@ -61,8 +61,15 @@ impl CPU6502 {
 
     /*********** ALU **********/
 
-    fn alu_adc(&mut self, _value: u8) {
+    fn alu_adc(&mut self, value: u8) {
+        let (r1, overflow1) = self.registers.a.overflowing_add(value);
+        let (r2, overflow2) = r1.overflowing_add(if self.registers.carry() { 0x01 } else { 0x00 });
 
+        self.registers.set_negative(false);
+        self.registers.set_overflow((self.registers.a ^ r2) & (value ^ r2) & 0x80 != 0);
+        self.registers.set_zero(r2 == 0);
+        self.registers.set_carry(overflow1 | overflow2);
+        self.registers.a = r2;
     }
 
     fn alu_and(&mut self, value: u8) {
@@ -70,10 +77,12 @@ impl CPU6502 {
         self.registers.set_zero(self.registers.a & value == 0);
     }
 
-    fn alu_asl(&mut self, value: u8) {
+    fn alu_asl(&mut self, value: u8) -> u8 {
+        let result = value << 1;
         self.registers.set_negative(false);
-        self.registers.set_zero(value << 1 == 0);
+        self.registers.set_zero(result == 0);
         self.registers.set_carry(value & 0x80 != 0);
+        result
     }
 
     fn alu_bit(&mut self, value: u8) {
@@ -108,10 +117,12 @@ impl CPU6502 {
         result
     }
 
-    fn alu_lsr(&mut self, value: u8) {
+    fn alu_lsr(&mut self, value: u8) -> u8 {
+        let result = value >> 1;
         self.registers.set_negative(false);
-        self.registers.set_zero(value >> 1 == 0);
+        self.registers.set_zero(result == 0);
         self.registers.set_carry(value & 0x01 != 0);
+        result
     }
 
     fn alu_ora(&mut self, value: u8) {
@@ -119,16 +130,31 @@ impl CPU6502 {
         self.registers.set_zero(self.registers.a | value == 0);
     }
 
-    fn alu_rol(&mut self, _value: u8) {
-
+    fn alu_rol(&mut self, value: u8) -> u8 {
+        let result = value << 1 | if self.registers.carry() { 0x01 } else { 0x00 };
+        self.registers.set_negative(false);
+        self.registers.set_zero(result == 0);
+        self.registers.set_carry(value & 0x80 != 0);
+        result
     }
 
-    fn alu_ror(&mut self, _value: u8) {
-
+    fn alu_ror(&mut self, value: u8) -> u8 {
+        let result = value >> 1 | if self.registers.carry() { 0x80 } else { 0x00 };
+        self.registers.set_negative(false);
+        self.registers.set_zero(result == 0);
+        self.registers.set_carry(value & 0x01 != 0);
+        result
     }
 
-    fn alu_sbc(&mut self, _value: u8) {
+    fn alu_sbc(&mut self, value: u8) {
+        let (r1, overflow1) = self.registers.a.overflowing_sub(value);
+        let (r2, overflow2) = r1.overflowing_sub(if self.registers.carry() { 0x01 } else { 0x00 });
 
+        self.registers.set_negative(true);
+        self.registers.set_overflow((self.registers.a ^ r2) & (value ^ r2) & 0x80 != 0);
+        self.registers.set_zero(r2 == 0);
+        self.registers.set_carry(overflow1 | overflow2);
+        self.registers.a = r2;
     }
 
     /*********** Addressing Modes **********/
