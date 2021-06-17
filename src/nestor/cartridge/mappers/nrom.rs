@@ -20,6 +20,10 @@ impl NROM {
 
         let ines = INes::new(data.clone());
 
+        for i in 0..=20 {
+            println!("{:#06X}", ines.data[i as usize]);
+        }
+
         NROM {
             ram: std::iter::repeat(0).take(0x2000).collect(),
             rom: ines.data
@@ -40,7 +44,7 @@ impl Mapper for NROM {
 
     fn read(&self, address: u16) -> u8 {
         match address {
-            0x8000..=0xFFFF => self.rom[(address & 0x3999) as usize],
+            0x8000..=0xFFFF => self.rom[(address & 0x3FFF) as usize],
             _ => panic!("unmapped")
         }
     }

@@ -15,7 +15,7 @@ impl Cartridge {
 
     pub fn new(rom_path: &str) -> Cartridge {
 
-        let data = std::fs::read(rom_path).unwrap();
+        let data = std::fs::read(rom_path).unwrap(); //.into_vec()[0x0010..].to_vec();
 
         Cartridge {
             mapper: get_mapper(data)
@@ -27,7 +27,6 @@ impl Cartridge {
 impl MemoryMap for Cartridge {
 
     fn read(&self, address: u16) -> u8 {
-        println!("Cartridge read for address: {:#06X}", address);
         self.mapper.read(address)
     }
 

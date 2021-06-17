@@ -31,26 +31,38 @@ impl CPU6502 {
 
     pub fn run(&mut self) {
         loop {
-            println!("program counter {:#06X}", self.registers.pc);
+            let mut s = String::new();
+
+            print!("program counter {:#06X} ; ", self.registers.pc);
             let opcode = self.byte();
-            println!("fetched {:04X}", opcode);
+            println!("fetched {:#04X}; A:{:#02X} X:{:#02X} Y:{:#02X}", opcode, self.registers.a,  self.registers.x, self.registers.y);
+
             self.call(opcode);
 
-            let mut s = String::new();
+            std::io::stdin().read_line(&mut s);
+            println!("program counter {:#06X}                A:{:#02X} X:{:#02X} Y:{:#02X}", self.registers.pc, self.registers.a, self.registers.x, self.registers.y);
+
             std::io::stdin().read_line(&mut s);
         }
     }
 
     #[allow(dead_code)]
     pub fn byte(&mut self) -> u8 {
+        println!("         PC AT: {:#06X}", self.registers.pc);
         let result = self.io.read(self.registers.pc);
+        println!("BYTE: {:#04X}", result);
         self.registers.pc = self.registers.pc.wrapping_add(1);
+        println!("PC ADJUSTED TO: {:#06X}", self.registers.pc);
         result
     }
 
     #[allow(dead_code)]
     pub fn word(&mut self) -> u16 {
-        0
+        let lower = self.byte();
+        let higher = self.byte();
+        let address = ((higher as u16) << 8) | (lower as u16);
+        println!("lower: {:#06X}, higher: {:#06X}, formed: {:#06X}", lower, higher, address);
+        address
     }
 
     #[allow(dead_code)]
@@ -215,7 +227,9 @@ impl CPU6502 {
 
     fn indirect_y(&mut self) -> (u16, u8, bool) {
         let byte = self.byte();
-        let word = self.io.read_word(byte as u16);
+        let lower = self.io.read(byte as u16);
+        let higher = self.io.read(byte as u16 + 1);
+        let word = ((higher as u16) << 8) | (lower as u16);
         let address = word + self.registers.y as u16;
         (address, self.io.read(address), (word & 0xFF00) != (address & 0xFF00))
     }

@@ -14,16 +14,6 @@ impl IO {
             ram: std::iter::repeat(0).take(0x0800).collect(),
         }
     }
-
-
-    #[allow(dead_code)]
-    pub fn read_byte(&mut self, _address: u16) -> u8 {
-        0
-    }
-
-    pub fn read_word(&mut self, _address: u16) -> u16 {
-        0
-    }
 }
 
 
