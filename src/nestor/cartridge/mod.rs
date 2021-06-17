@@ -25,7 +25,5 @@ impl MemoryMap for Cartridge {
         }
     }
 
-    fn write(&mut self, _address: u16, _value: u8) {
-        todo!()
-    }
+    fn write(&mut self, _address: u16, _value: u8) {    }
 }

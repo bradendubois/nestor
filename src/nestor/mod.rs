@@ -1,4 +1,4 @@
-use crate::nestor::traits::{MemoryMap, Power};
+use crate::nestor::traits::{Power};
 
 mod cartridge;
 mod cpu;
@@ -7,16 +7,17 @@ mod traits;
 mod enums;
 
 pub struct Nestor {
-    cartridge: cartridge::Cartridge,
     cpu: cpu::CPU6502
 }
 
 impl Nestor {
 
     pub fn new() -> Nestor {
+
+        let cartridge = cartridge::Cartridge::new();
+
         Nestor {
-            cartridge: cartridge::Cartridge::new(),
-            cpu: cpu::CPU6502::new()
+            cpu: cpu::CPU6502::new(cartridge)
         }
     }
 

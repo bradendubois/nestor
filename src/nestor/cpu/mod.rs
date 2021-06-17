@@ -6,6 +6,7 @@ use super::io::IO;
 use super::traits::{MemoryMap, Power};
 
 use registers::Registers;
+use crate::nestor::cartridge::Cartridge;
 
 
 #[allow(dead_code)]
@@ -17,10 +18,10 @@ pub struct CPU6502 {
 
 impl CPU6502 {
 
-    pub fn new() -> CPU6502 {
+    pub fn new(cartridge: Cartridge) -> CPU6502 {
         CPU6502 {
             registers: Registers::new(),
-            io: IO::new()
+            io: IO::new(cartridge)
         }
     }
 
@@ -46,15 +47,15 @@ impl CPU6502 {
         0
     }
 
-    pub fn bcc(&mut self, _mode: OperandMode) -> u8 {
+    pub fn bcc(&mut self) -> u8 {
         0
     }
 
-    pub fn bcs(&mut self, _mode: OperandMode) -> u8 {
+    pub fn bcs(&mut self) -> u8 {
         0
     }
 
-    pub fn beq(&mut self, _mode: OperandMode) -> u8 {
+    pub fn beq(&mut self) -> u8 {
         0
     }
 
@@ -62,15 +63,15 @@ impl CPU6502 {
         0
     }
 
-    pub fn bmi(&mut self, _mode: OperandMode) -> u8 {
+    pub fn bmi(&mut self) -> u8 {
         0
     }
 
-    pub fn bne(&mut self, _mode: OperandMode) -> u8 {
+    pub fn bne(&mut self) -> u8 {
         0
     }
 
-    pub fn bpl(&mut self, _mode: OperandMode) -> u8 {
+    pub fn bpl(&mut self) -> u8 {
         0
     }
 
@@ -78,15 +79,15 @@ impl CPU6502 {
         0
     }
 
-    pub fn bvc(&mut self, _mode: OperandMode) -> u8 {
+    pub fn bvc(&mut self) -> u8 {
         0
     }
 
-    pub fn bvs(&mut self, _mode: OperandMode) -> u8 {
+    pub fn bvs(&mut self) -> u8 {
         0
     }
 
-    pub fn clc(&mut self, _mode: OperandMode) -> u8 {
+    pub fn clc(&mut self) -> u8 {
         0
     }
 
@@ -94,11 +95,11 @@ impl CPU6502 {
         0
     }
 
-    pub fn cli(&mut self, _mode: OperandMode) -> u8 {
+    pub fn cli(&mut self) -> u8 {
         0
     }
 
-    pub fn clv(&mut self, _mode: OperandMode) -> u8 {
+    pub fn clv(&mut self) -> u8 {
         0
     }
 
@@ -118,11 +119,11 @@ impl CPU6502 {
         0
     }
 
-    pub fn dex(&mut self, _mode: OperandMode) -> u8 {
+    pub fn dex(&mut self) -> u8 {
         0
     }
 
-    pub fn dey(&mut self, _mode: OperandMode) -> u8 {
+    pub fn dey(&mut self) -> u8 {
         0
     }
 
@@ -134,11 +135,11 @@ impl CPU6502 {
         0
     }
 
-    pub fn inx(&mut self, _mode: OperandMode) -> u8 {
+    pub fn inx(&mut self) -> u8 {
         0
     }
 
-    pub fn iny(&mut self, _mode: OperandMode) -> u8 {
+    pub fn iny(&mut self) -> u8 {
         0
     }
 
@@ -174,11 +175,11 @@ impl CPU6502 {
         0
     }
 
-    pub fn pha(&mut self, _mode: OperandMode) -> u8 {
+    pub fn pha(&mut self) -> u8 {
         0
     }
 
-    pub fn php(&mut self, _mode: OperandMode) -> u8 {
+    pub fn php(&mut self) -> u8 {
         0
     }
 
@@ -186,7 +187,7 @@ impl CPU6502 {
         0
     }
 
-    pub fn plp(&mut self, _mode: OperandMode) -> u8 {
+    pub fn plp(&mut self) -> u8 {
         0
     }
 
@@ -210,15 +211,15 @@ impl CPU6502 {
         0
     }
 
-    pub fn sec(&mut self, _mode: OperandMode) -> u8 {
+    pub fn sec(&mut self) -> u8 {
         0
     }
 
-    pub fn sed(&mut self, _mode: OperandMode) -> u8 {
+    pub fn sed(&mut self) -> u8 {
         0
     }
 
-    pub fn sei(&mut self, _mode: OperandMode) -> u8 {
+    pub fn sei(&mut self) -> u8 {
         0
     }
 
@@ -234,27 +235,27 @@ impl CPU6502 {
         0
     }
 
-    pub fn tax(&mut self, _mode: OperandMode) -> u8 {
+    pub fn tax(&mut self) -> u8 {
         0
     }
 
-    pub fn tay(&mut self, _mode: OperandMode) -> u8 {
+    pub fn tay(&mut self) -> u8 {
         0
     }
 
-    pub fn  tsx(&mut self, _mode: OperandMode) -> u8 {
+    pub fn tsx(&mut self) -> u8 {
         0
     }
 
-    pub fn txa(&mut self, _mode: OperandMode) -> u8 {
+    pub fn txa(&mut self) -> u8 {
         0
     }
 
-    pub fn txs(&mut self, _mode: OperandMode) -> u8 {
+    pub fn txs(&mut self) -> u8 {
         0
     }
 
-    pub fn tya(&mut self, _mode: OperandMode) -> u8 {
+    pub fn tya(&mut self) -> u8 {
         0
     }
 }

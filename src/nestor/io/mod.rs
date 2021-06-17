@@ -1,14 +1,15 @@
 use crate::nestor::traits::MemoryMap;
+use crate::nestor::cartridge::Cartridge;
 
 pub struct IO {
-
+    cartridge: Cartridge
 }
 
 impl IO {
 
-    pub fn new() -> IO {
+    pub fn new(cartridge: Cartridge) -> IO {
         IO {
-
+            cartridge
         }
     }
 }
@@ -28,13 +29,13 @@ impl MemoryMap for IO {
             0x2008..=0x3FFF => 0x00,
             0x4000..=0x4017 => 0x00,
             0x4018..=0x401F => 0x00,
-            0x4020..=0xFFFF => 0x00,
+            0x4020..=0xFFFF => self.cartridge.read(address - 0x4020),
 
             _ => panic!("unmapped address: {:#06X}", address)
         }
     }
 
-    fn write(&mut self, address: u16, _value: u8) {
+    fn write(&mut self, address: u16, value: u8) {
         match address {
             0x0000..=0x07FF => (),
             0x0800..=0x0FFF => (),
@@ -44,7 +45,7 @@ impl MemoryMap for IO {
             0x2008..=0x3FFF => (),
             0x4000..=0x4017 => (),
             0x4018..=0x401F => (),
-            0x4020..=0xFFFF => (),
+            0x4020..=0xFFFF => self.cartridge.write(address - 0x4020, value),
 
             _ => panic!("unmapped address: {:#06X}", address)
         };
