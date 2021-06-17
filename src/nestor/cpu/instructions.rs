@@ -291,36 +291,6 @@ impl CPU6502 {
 /// Official Opcodes
 impl CPU6502 {
 
-    pub fn cmp(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for cmp : {:?}", mode)
-        }
-    }
-
-    pub fn cpx(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for cpx : {:?}", mode)
-        }
-    }
-
-    pub fn cpy(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for cpy : {:?}", mode)
-        }
-    }
-
-    pub fn dec(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for dec : {:?}", mode)
-        }
-    }
-
-    pub fn eor(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            _ => panic!("unsupported mode for eor : {:?}", mode)
-        }
-    }
-
     pub fn inc(&mut self, mode: OperandMode) -> u8 {
         match mode {
             _ => panic!("unsupported mode for inc : {:?}", mode)
@@ -551,6 +521,97 @@ impl CPU6502 {
         self.registers.pc = self.registers.pc.wrapping_add(1);
         7
     }
+
+    // Helper method to generalize CMP calls with A, X, Y registers
+    fn cmp_general(&mut self, mode: OperandMode, source: u8) -> u8 {
+        match mode {
+            Immediate => {
+                let value = self.immediate();
+                self.alu_cmp(source, value);
+                2
+            }
+            ZeroPage => {
+                let address = self.zero_page();
+                let value = self.io.read(address);
+                self.alu_cmp(source, value);
+                3
+            }
+            ZeroPageX => {
+                let address = self.zero_page_x();
+                let value = self.io.read(address);
+                self.alu_cmp(source, value);
+                4
+            }
+            Absolute => {
+                let address = self.absolute();
+                let value = self.io.read(address);
+                self.alu_cmp(source, value);
+                4
+            }
+            AbsoluteX => {
+                let (address, carry) = self.absolute_x();
+                let value = self.io.read(address);
+                self.alu_cmp(source, value);
+                4 + if carry { 1 } else { 0 }
+            }
+            AbsoluteY => {
+                let (address, carry) = self.absolute_y();
+                let value = self.io.read(address);
+                self.alu_cmp(source, value);
+                4 + if carry { 1 } else { 0 }
+            }
+            IndirectX => {
+                let address = self.x_indirect();
+                let value = self.io.read(address);
+                self.alu_cmp(source, value);
+                6
+            }
+            IndirectY => {
+                let (address, carry) = self.indirect_y();
+                let value = self.io.read(address);
+                self.alu_cmp(source, value);
+                5 + if carry { 1 } else { 0 }
+            }
+            _ => panic!("unsupported mode for cmp : {:?}", mode)
+        }
+    }
+
+    /// 0xC9, 0xC5, 0xD5, 0xCD, 0xDD, 0xD9, 0xC1, 0xD1 - Compare Accumulator
+    pub fn cmp(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Immediate | ZeroPage | ZeroPageX | Absolute | AbsoluteX | AbsoluteY | IndirectX | IndirectY => self.cmp_general(mode, self.registers.a),
+            _ => panic!("unsupported mode for cmp : {:?}", mode)
+        }
+    }
+
+    /// 0xE0, 0xE4, 0xEC - Compare X Register
+    pub fn cpx(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Immediate | ZeroPage | Absolute => self.cmp_general(mode, self.registers.x),
+            _ => panic!("unsupported mode for cpx : {:?}", mode)
+        }
+    }
+
+    /// 0xC0, 0xC4, 0xCC - Compare Y Register
+    pub fn cpy(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Immediate | ZeroPage | Absolute => self.cmp_general(mode, self.registers.y),
+            _ => panic!("unsupported mode for cpy : {:?}", mode)
+        }
+    }
+
+    pub fn dec(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for dec : {:?}", mode)
+        }
+    }
+
+    pub fn eor(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            _ => panic!("unsupported mode for eor : {:?}", mode)
+        }
+    }
+
 
     /***** Stack Instruction *****/
 

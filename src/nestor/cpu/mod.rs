@@ -65,6 +65,10 @@ impl CPU6502 {
 
     }
 
+    fn alu_cmp(&mut self, _src: u8, _value: u8) {
+
+    }
+
     /*********** Addressing Modes **********/
 
     #[allow(dead_code)]
