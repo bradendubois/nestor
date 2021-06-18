@@ -59,8 +59,8 @@ impl CPU6502 {
     }
 
     fn push(&mut self, value: u8) {
-        self.io.write(self.registers.s as u16, value);
         self.registers.s = self.registers.s.wrapping_sub(1);
+        self.io.write(self.registers.s as u16, value);
     }
 
     fn pull(&mut self) -> u8 {
@@ -79,7 +79,9 @@ impl CPU6502 {
 
     #[allow(dead_code)]
     fn pull_word(&mut self) -> u16 {
-        0
+        let lower = self.pull();
+        let upper = self.pull();
+        ((upper as u16) << 8) | (lower as u16)
     }
 
     /*********** ALU **********/
@@ -96,6 +98,7 @@ impl CPU6502 {
     }
 
     fn alu_and(&mut self, value: u8) {
+        self.registers.a &= value;
         self.registers.set_negative(false);
         self.registers.set_zero(self.registers.a & value == 0);
     }

@@ -36,6 +36,7 @@ impl MemoryMap for IO {
     }
 
     fn write(&mut self, address: u16, value: u8) {
+        //println!("WRITING: {:#06X} {:#04X}", address, value);
         match address {
             0x0000..=0x07FF => self.ram[address as usize] = value,
             0x0800..=0x1FFF => self.ram[(address & 0x07FF) as usize] = value,

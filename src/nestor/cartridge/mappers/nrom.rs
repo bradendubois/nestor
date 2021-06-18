@@ -21,9 +21,12 @@ impl NROM {
 
         let ines = INes::new(data.clone());
 
+        /*
         for i in 0..=20 {
             println!("{:#06X}", ines.data[i as usize]);
         }
+
+         */
 
         NROM {
             ram: std::iter::repeat(0).take(0x2000).collect(),

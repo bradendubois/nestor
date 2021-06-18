@@ -822,7 +822,7 @@ impl CPU6502 {
 
     /// 0x60 - Return from Subroutine
     fn rts(&mut self) -> u8 {
-        self.registers.pc = self.pull_word().wrapping_add(1);
+        self.registers.pc = self.pull_word();
         6
     }
 
@@ -877,13 +877,14 @@ impl CPU6502 {
 
     /// 0x08 - Push Processor Status
     fn php(&mut self) -> u8 {
-        self.push(self.registers.p);
+        self.push(self.registers.p | 0x10);
         3
     }
 
     /// 0x28 - Pull Processor Status
     fn plp(&mut self) -> u8 {
-        self.registers.p = self.pull();
+        // Pull with Break (0x10) ignored
+        self.registers.p = self.pull() | 0x20;
         4
     }
 
@@ -896,6 +897,8 @@ impl CPU6502 {
     /// 0x68 - Pull Accumulator
     fn pla(&mut self) -> u8 {
         self.registers.a = self.pull();
+        // self.registers.set_negative(false);
+        self.registers.set_zero(self.registers.a >= 0x80);
         4
     }
 

@@ -24,7 +24,7 @@ impl Registers {
         }
     }
 
-    /***** Negative (V) - Bit 7 (0x80) *****/
+    /// Negative (V) - Bit 7 (0x80)
     pub fn set_negative(&mut self, enabled: bool) {
         match enabled {
             true  => self.p |=  0x80,
@@ -44,7 +44,25 @@ impl Registers {
 
     pub fn overflow(&self) -> bool { self.p & 0x40 != 0 }
 
-    /// TODO - "B Flag" on bits 5,4
+    /// Ignored (-) - Bit 5 (0x12)  - Not so 'ignored' if we're here, huh?
+    pub fn set_ignored(&mut self, enabled: bool) {
+        match enabled {
+            true  => self.p |=  0x20,
+            false => self.p &= !0x20
+        }
+    }
+
+    pub fn ignored(&mut self) -> bool { self.p & 0x20 != 0 }
+
+    /// Break (B) - Bit 4 (0x10)
+    pub fn set_break(&mut self, enabled: bool) {
+        match enabled {
+            true  => self.p |=  0x10,
+            false => self.p &= !0x10
+        }
+    }
+
+    pub fn break_flag(&self) -> bool { self.p & 0x10 != 0 }
 
     /// Decimal (D) - Bit 3 (0x08)
     pub fn set_decimal(&mut self, enabled: bool) {

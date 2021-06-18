@@ -8,6 +8,7 @@ pub fn get_mapper(data: Vec<u8>) -> Box<dyn Mapper> {
 
     let header = &data[0..=15];
 
+    /*
     println!("NES: {:#04X} {:#04X} {:#04X} {:#04X}", header[0], header[1], header[2], header[3]);
     println!("PRG ROM Size (16KB Units): {:#04X}", header[4]);
     println!("CHR ROM Size  (8KB Units): {:#04X}", header[5]);
@@ -19,6 +20,8 @@ pub fn get_mapper(data: Vec<u8>) -> Box<dyn Mapper> {
 
     println!("{:#04X} {:#04X} {:#04X} {:#04X}", header[0], header[1], header[2], header[3]);
 
+
+     */
     let mapper_number = (header[7] & 0xF0) | ((header[6] & 0xF0) >> 4);
 
     match mapper_number {
