@@ -487,8 +487,11 @@ impl CPU6502 {
 
     /// 0x00 - Break
     fn brk(&mut self) -> u8 {
-        self.registers.set_interrupt(true);
-        self.registers.pc = self.registers.pc.wrapping_add(1);
+        self.push_word(self.registers.pc);
+        self.php();
+        self.sei();
+//        self.registers.pc = self.registers.pc.wrapping_add(1);
+        self.registers.pc = self.io.read(0xFFFE) as u16 | ((self.io.read(0xFFFF) as u16) << 8);
         7
     }
     
@@ -646,7 +649,7 @@ impl CPU6502 {
     /// 0x20 - Jump to Subroutine
     fn jsr(&mut self) -> u8 {
         let (address, _value) = self.absolute();
-        self.push_word(self.registers.pc);
+        self.push_word(self.registers.pc - 1);
         self.registers.pc = address;
         6
     }
@@ -813,7 +816,7 @@ impl CPU6502 {
 
     /// 0x40 - Return From Interrupt
     fn rti(&mut self) -> u8 {
-        let p = self.pull();
+        let p = self.pull() & 0xEF | 0x20;
         let pc = self.pull_word();
         self.registers.p = p;
         self.registers.pc = pc;
@@ -822,7 +825,7 @@ impl CPU6502 {
 
     /// 0x60 - Return from Subroutine
     fn rts(&mut self) -> u8 {
-        self.registers.pc = self.pull_word();
+        self.registers.pc = self.pull_word() + 1;
         6
     }
 
@@ -877,7 +880,7 @@ impl CPU6502 {
 
     /// 0x08 - Push Processor Status
     fn php(&mut self) -> u8 {
-        self.push(self.registers.p | 0x10);
+        self.push(self.registers.p | 0x30);
         3
     }
 
@@ -895,9 +898,11 @@ impl CPU6502 {
 
     /// 0x68 - Pull Accumulator
     fn pla(&mut self) -> u8 {
-        self.registers.a = self.pull();
-        self.registers.set_negative(self.registers.a >= 0x80);
-        self.registers.set_zero(self.registers.a == 0);
+        let value = self.pull();
+        // println!("PULL: {:#04X}", value);
+        self.registers.a = value;
+        self.registers.set_negative(value >= 0x80);
+        self.registers.set_zero(value == 0);
         4
     }
 
@@ -936,8 +941,8 @@ impl CPU6502 {
     /// 0x98 - Transfer Y to A
     fn tya(&mut self) -> u8 {
         self.registers.a = self.registers.y;
-        self.registers.set_negative(self.registers.y >= 0x80);
-        self.registers.set_zero(self.registers.y == 0);
+        self.registers.set_negative(self.registers.a >= 0x80);
+        self.registers.set_zero(self.registers.a == 0);
         2
     }
 
@@ -1029,7 +1034,7 @@ impl CPU6502 {
 
     fn lda(&mut self, mode: OperandMode) -> u8 {
         match mode {
-            Immediate | ZeroPage | ZeroPageX | Absolute | AbsoluteX | AbsoluteY | IndirectX | IndirectY => {
+            Immediate | ZeroPage | ZeroPageX | ZeroPageY | Absolute | AbsoluteX | AbsoluteY | IndirectX | IndirectY => {
                 let (result, cycles) = self.load(mode);
                 self.registers.a = result;
                 cycles
@@ -1051,7 +1056,7 @@ impl CPU6502 {
 
     fn ldy(&mut self, mode: OperandMode) -> u8 {
         match mode {
-            Immediate | ZeroPage | ZeroPageY | Absolute | AbsoluteY => {
+            Immediate | ZeroPage | ZeroPageX | Absolute | AbsoluteX => {
                 let (result, cycles) = self.load(mode);
                 self.registers.y = result;
                 cycles
@@ -1071,6 +1076,11 @@ impl CPU6502 {
             }
             ZeroPageX => {
                 let (address, _value) = self.zero_page_x();
+                self.io.write(address, value);
+                4
+            }
+            ZeroPageY => {
+                let (address, _value) = self.zero_page_y();
                 self.io.write(address, value);
                 4
             }
@@ -1266,8 +1276,10 @@ impl CPU6502 {
         0
     }
 
-    fn lax(&mut self, _mode: OperandMode) -> u8 {
-        0
+    fn lax(&mut self, mode: OperandMode) -> u8 {
+        let cycles = self.lda(mode);
+        self.registers.x = self.registers.a;
+        cycles
     }
 
     fn las(&mut self, _mode: OperandMode) -> u8 {

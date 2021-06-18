@@ -48,12 +48,14 @@ impl Mapper for NROM {
 
     fn read(&self, address: u16) -> u8 {
         match address {
+            0x4020..=0x5FFF => 0x00,  // TODO - Cartridge Expansion
+            0x6000..=0x7FFF => 0x00,  // TODO - SRAM
             0x8000..=0xFFFF => self.rom[(address & 0x3FFF) as usize],
-            _ => panic!("unmapped")
+            _ => panic!("unmapped: {:#06X}", address)
         }
     }
 
     fn write(&mut self, _address: u16, _value: u8) {
-        todo!()
+        panic!("DID THIS GET CALLED?");
     }
 }
