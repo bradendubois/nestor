@@ -90,7 +90,7 @@ impl CPU6502 {
         let (r1, overflow1) = self.registers.a.overflowing_add(value);
         let (r2, overflow2) = r1.overflowing_add(if self.registers.carry() { 0x01 } else { 0x00 });
 
-        self.registers.set_negative(false);
+        self.registers.set_negative(r2 >= 0x80);
         self.registers.set_overflow((self.registers.a ^ r2) & (value ^ r2) & 0x80 != 0);
         self.registers.set_zero(r2 == 0);
         self.registers.set_carry(overflow1 | overflow2);
@@ -99,7 +99,7 @@ impl CPU6502 {
 
     fn alu_and(&mut self, value: u8) {
         self.registers.a &= value;
-        self.registers.set_negative(false);
+        self.registers.set_negative(self.registers.a >= 0x80);
         self.registers.set_zero(self.registers.a & value == 0);
     }
 
@@ -118,7 +118,7 @@ impl CPU6502 {
     }
 
     fn alu_cmp(&mut self, src: u8, value: u8) {
-        self.registers.set_negative(src >= 0x80);
+        self.registers.set_negative(src.wrapping_sub(value) >= 0x80);
         self.registers.set_zero(src == value);
         self.registers.set_carry(src >= value);
     }
@@ -131,9 +131,9 @@ impl CPU6502 {
     }
 
     fn alu_xor(&mut self, value: u8) {
-        let result = self.registers.a ^ value;
-        self.registers.set_negative(false);
-        self.registers.set_zero(result == 0);
+        self.registers.a ^= value;
+        self.registers.set_negative(self.registers.a >= 0x80);
+        self.registers.set_zero(self.registers.a == 0);
     }
 
     fn alu_inc(&mut self, value: u8) -> u8 {
@@ -152,7 +152,8 @@ impl CPU6502 {
     }
 
     fn alu_ora(&mut self, value: u8) {
-        self.registers.set_negative(false);
+        self.registers.a |= value;
+        self.registers.set_negative(self.registers.a >= 0x80);
         self.registers.set_zero(self.registers.a | value == 0);
     }
 
@@ -173,14 +174,7 @@ impl CPU6502 {
     }
 
     fn alu_sbc(&mut self, value: u8) {
-        let (r1, overflow1) = self.registers.a.overflowing_sub(value);
-        let (r2, overflow2) = r1.overflowing_sub(if self.registers.carry() { 0x01 } else { 0x00 });
-
-        self.registers.set_negative(true);
-        self.registers.set_overflow((self.registers.a ^ r2) & (value ^ r2) & 0x80 != 0);
-        self.registers.set_zero(r2 == 0);
-        self.registers.set_carry(overflow1 | overflow2);
-        self.registers.a = r2;
+        self.alu_adc(!value);
     }
 
 

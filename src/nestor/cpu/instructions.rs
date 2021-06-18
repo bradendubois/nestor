@@ -883,8 +883,7 @@ impl CPU6502 {
 
     /// 0x28 - Pull Processor Status
     fn plp(&mut self) -> u8 {
-        // Pull with Break (0x10) ignored
-        self.registers.p = self.pull() | 0x20;
+        self.registers.p = self.pull() & 0xEF | 0x20;
         4
     }
 
@@ -897,8 +896,8 @@ impl CPU6502 {
     /// 0x68 - Pull Accumulator
     fn pla(&mut self) -> u8 {
         self.registers.a = self.pull();
-        // self.registers.set_negative(false);
-        self.registers.set_zero(self.registers.a >= 0x80);
+        self.registers.set_negative(self.registers.a >= 0x80);
+        self.registers.set_zero(self.registers.a == 0);
         4
     }
 
@@ -908,9 +907,11 @@ impl CPU6502 {
         2
     }
 
-    /// 0xBA - Transfer X to SP
+    /// 0xBA - Transfer SP to X
     fn tsx(&mut self) -> u8 {
-        self.registers.s = self.registers.x;
+        self.registers.x = self.registers.s;
+        self.registers.set_negative(self.registers.x >= 0x80);
+        self.registers.set_zero(self.registers.x == 0);
         2
     }
 
@@ -919,7 +920,7 @@ impl CPU6502 {
     /// 0x88 - Decrement Y
     fn dey(&mut self) -> u8 {
         self.registers.y = self.registers.y.wrapping_sub(1);
-        self.registers.set_negative(true);
+        self.registers.set_negative(self.registers.y >= 0x80);
         self.registers.set_zero(self.registers.y == 0);
         2
     }
@@ -927,18 +928,24 @@ impl CPU6502 {
     /// 0x8A - Transfer X to A
     fn txa(&mut self) -> u8 {
         self.registers.a = self.registers.x;
+        self.registers.set_negative(self.registers.a >= 0x80);
+        self.registers.set_zero(self.registers.a == 0);
         2
     }
 
     /// 0x98 - Transfer Y to A
     fn tya(&mut self) -> u8 {
         self.registers.a = self.registers.y;
+        self.registers.set_negative(self.registers.y >= 0x80);
+        self.registers.set_zero(self.registers.y == 0);
         2
     }
 
     /// 0xAA - Transfer A to X
     fn tax(&mut self) -> u8 {
         self.registers.x = self.registers.a;
+        self.registers.set_negative(self.registers.x >= 0x80);
+        self.registers.set_zero(self.registers.x == 0);
         2
     }
 
@@ -951,7 +958,7 @@ impl CPU6502 {
     /// 0xCA - Decrement X
     fn dex(&mut self) -> u8 {
         self.registers.x = self.registers.x.wrapping_sub(1);
-        self.registers.set_negative(true);
+        self.registers.set_negative(self.registers.x >= 0x80);
         self.registers.set_zero(self.registers.x == 0);
         2
     }
@@ -959,7 +966,7 @@ impl CPU6502 {
     /// 0xC8 - Increment Y
     fn iny(&mut self) -> u8 {
         self.registers.y = self.registers.y.wrapping_add(1);
-        self.registers.set_negative(false);
+        self.registers.set_negative(self.registers.y >= 0x80);
         self.registers.set_zero(self.registers.y == 0);
         2
     }
@@ -967,7 +974,7 @@ impl CPU6502 {
     /// 0xE8 - Increment X
     fn inx(&mut self) -> u8 {
         self.registers.x = self.registers.x.wrapping_add(1);
-        self.registers.set_negative(false);
+        self.registers.set_negative(self.registers.x >= 0x80);
         self.registers.set_zero(self.registers.x == 0);
         2
     }
