@@ -972,7 +972,7 @@ impl CPU6502 {
     /***** Load *****/
 
     fn load(&mut self, mode: OperandMode) -> (u8, u8) {
-        match mode {
+        let (value, cycles) = match mode {
             Immediate => {
                 (self.immediate(), 2)
             }
@@ -1009,7 +1009,12 @@ impl CPU6502 {
                 (value, 5 + if carry { 1 } else { 0 })
             }
             _ => panic!("unsupported load mode: {:?}", mode)
-        }
+        };
+
+        self.registers.set_negative(value >= 0x80);
+        self.registers.set_zero(value == 0);
+
+        (value, cycles)
     }
 
     fn lda(&mut self, mode: OperandMode) -> u8 {

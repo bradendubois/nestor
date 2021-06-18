@@ -25,7 +25,7 @@ impl CPU6502 {
     }
 
     pub fn test(&mut self) {
-        self.registers.pc = 0x0c000;
+        self.registers.pc = 0x0C000;
         self.run();
     }
 
@@ -33,51 +33,48 @@ impl CPU6502 {
         loop {
             let mut s = String::new();
 
-            print!("program counter {:#06X} ; ", self.registers.pc);
+            print!("{:04X} ", self.registers.pc);
             let opcode = self.byte();
-            println!("fetched {:#04X}; A:{:#02X} X:{:#02X} Y:{:#02X}", opcode, self.registers.a,  self.registers.x, self.registers.y);
 
             self.call(opcode);
 
-            std::io::stdin().read_line(&mut s);
-            println!("program counter {:#06X}                A:{:#02X} X:{:#02X} Y:{:#02X}", self.registers.pc, self.registers.a, self.registers.x, self.registers.y);
+            println!("A:{:02X} X:{:02X} Y:{:02X} P:{:02X} SP:{:02X}", self.registers.a, self.registers.x, self.registers.y, self.registers.p, self.registers.s);
 
-            std::io::stdin().read_line(&mut s);
+            // std::io::stdin().read_line(&mut s);
         }
     }
 
-    #[allow(dead_code)]
     pub fn byte(&mut self) -> u8 {
-        println!("         PC AT: {:#06X}", self.registers.pc);
         let result = self.io.read(self.registers.pc);
-        println!("BYTE: {:#04X}", result);
         self.registers.pc = self.registers.pc.wrapping_add(1);
-        println!("PC ADJUSTED TO: {:#06X}", self.registers.pc);
+        print!("{:02X} ", result);
         result
     }
 
-    #[allow(dead_code)]
     pub fn word(&mut self) -> u16 {
         let lower = self.byte();
         let higher = self.byte();
         let address = ((higher as u16) << 8) | (lower as u16);
-        println!("lower: {:#06X}, higher: {:#06X}, formed: {:#06X}", lower, higher, address);
         address
     }
 
-    #[allow(dead_code)]
-    fn push(&mut self, _value: u8) {
-
+    fn push(&mut self, value: u8) {
+        self.io.write(self.registers.s as u16, value);
+        self.registers.s = self.registers.s.wrapping_sub(1);
     }
 
-    #[allow(dead_code)]
     fn pull(&mut self) -> u8 {
-        0
+        let value = self.io.read(self.registers.s as u16);
+        self.registers.s = self.registers.s.wrapping_add(1);
+        value
     }
 
     #[allow(dead_code)]
-    fn push_word(&mut self, _value: u16) {
-
+    fn push_word(&mut self, value: u16) {
+        let upper = (value >> 8) as u8;
+        let lower = value as u8;
+        self.push(upper);
+        self.push(lower);
     }
 
     #[allow(dead_code)]

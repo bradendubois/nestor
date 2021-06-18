@@ -20,7 +20,7 @@ impl Registers {
             x: 0,
             y: 0,
             s: 0xFD,
-            p: 0x34
+            p: 0x24
         }
     }
 

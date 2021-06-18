@@ -1,13 +1,14 @@
 use crate::nestor::traits::Mapper;
 use crate::nestor::cartridge::ines::INes;
 
+#[allow(dead_code)]
 pub enum NROMTypes {
     Mapper0,
     NROM128,
     NROM256
 }
 
-
+#[allow(dead_code)]
 pub struct NROM {
     ram: Vec<u8>,
     rom: Vec<u8>
@@ -49,7 +50,7 @@ impl Mapper for NROM {
         }
     }
 
-    fn write(&mut self, address: u16, value: u8) {
+    fn write(&mut self, _address: u16, _value: u8) {
         todo!()
     }
 }

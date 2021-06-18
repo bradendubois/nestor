@@ -1,3 +1,5 @@
+
+#[allow(dead_code)]
 pub struct INesHeader {
     constant: Vec<u8>,      // Bytes 0-3
     prg_rom_units: u8,      // Byte 4
@@ -66,6 +68,7 @@ impl INesHeader {
 }
 
 
+#[allow(dead_code)]
 pub struct INes {
     header: INesHeader,
     trainer: Option<Vec<u8>>,
