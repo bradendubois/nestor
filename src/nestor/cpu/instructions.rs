@@ -1,11 +1,12 @@
-use crate::nestor::cpu::CPU6502;
+use super::CPU6502;
 
-use crate::nestor::enums::OperandMode::*;
-use crate::nestor::enums::OperandMode;
+use crate::nestor::enums::{OperandMode, OperandMode::*};
 use crate::nestor::traits::MemoryMap;
+
 
 impl CPU6502 {
 
+    /// Execute a given opcode
     pub fn call(&mut self, opcode: u8) -> u8 {
 
         #[allow(unreachable_patterns)]
@@ -286,148 +287,8 @@ impl CPU6502 {
         }
     }
 
-    // Helper method to generalize CMP calls with A, X, Y registers
-    fn cmp_general(&mut self, mode: OperandMode, source: u8) -> u8 {
-        let (value, cycles) = match mode {
-            Immediate => (self.immediate(), 2),
-            ZeroPage => {
-                let (_address, value) = self.zero_page();
-                (value, 3)
-            }
-            ZeroPageX => {
-                let (_address, value) = self.zero_page_x();
-                (value, 4)
-            }
-            Absolute => {
-                let (_address, value) = self.absolute();
-                (value, 4)
-            }
-            AbsoluteX => {
-                let (_address, value, carry) = self.absolute_x();
-                (value, 4 + if carry { 1 } else { 0 })
-            }
-            AbsoluteY => {
-                let (_address, value, carry) = self.absolute_y();
-                (value, 4 + if carry { 1 } else { 0 })
-            }
-            IndirectX => {
-                let (_address, value) = self.x_indirect();
-                (value, 6)
-            }
-            IndirectY => {
-                let (_address, value, carry) = self.indirect_y();
-                (value, 5 + if carry { 1 } else { 0 })
-            }
-            _ => panic!("unsupported mode for cmp : {:?}", mode)
-        };
-
-        self.alu_cmp(source, value);
-        cycles
-    }
-
-    // Helper method for loading for LDA, LDX, LDY calls
-    fn load(&mut self, mode: OperandMode) -> (u8, u8) {
-        let (value, cycles) = match mode {
-            Immediate => {
-                (self.immediate(), 2)
-            }
-            ZeroPage => {
-                let (_address, value) = self.zero_page();
-                (value, 3)
-            }
-            ZeroPageX => {
-                let (_address, value) = self.zero_page_x();
-                (value, 4)
-            }
-            ZeroPageY => {
-                let (_address, value) = self.zero_page_y();
-                (value, 4)
-            }
-            Absolute => {
-                let (_address, value) = self.absolute();
-                (value, 4)
-            }
-            AbsoluteX => {
-                let (_address, value, carry) = self.absolute_x();
-                (value, 4 + if carry { 1 } else { 0 })
-            }
-            AbsoluteY => {
-                let (_address, value, carry) = self.absolute_y();
-                (value, 4 + if carry { 1 } else { 0 })
-            },
-            IndirectX => {
-                let (_address, value) = self.x_indirect();
-                (value, 6)
-            }
-            IndirectY => {
-                let (_address, value, carry) = self.indirect_y();
-                (value, 5 + if carry { 1 } else { 0 })
-            }
-            _ => panic!("unsupported load mode: {:?}", mode)
-        };
-
-        self.registers.set_negative(value >= 0x80);
-        self.registers.set_zero(value == 0);
-
-        (value, cycles)
-    }
-
-    // Helper method for storing with STA, STX, STY calls
-    fn store(&mut self, mode: OperandMode, value: u8) -> u8 {
-        let (address, cycles) = match mode {
-            ZeroPage => {
-                let (address, _value) = self.zero_page();
-                (address, 3)
-            }
-            ZeroPageX => {
-                let (address, _value) = self.zero_page_x();
-                (address, 4)
-            }
-            ZeroPageY => {
-                let (address, _value) = self.zero_page_y();
-                (address, 4)
-            }
-            Absolute => {
-                let (address, _value) = self.absolute();
-                (address, 4)
-            }
-            AbsoluteX => {
-                let (address, _value, carry) = self.absolute_x();
-                (address, 5 + if carry { 1 } else { 0 })
-            }
-            AbsoluteY => {
-                let (address, _value, carry) = self.absolute_y();
-                (address, 5 + if carry { 1 } else { 0 })
-            }
-            IndirectX => {
-                let (address, _value) = self.x_indirect();
-                (address, 6)
-            }
-            IndirectY => {
-                let (address, _value, carry) = self.indirect_y();
-                (address, 6 + if carry { 1 } else { 0 })
-            }
-
-            _ => panic!("unsupported mode: {:?}", mode)
-        };
-
-        self.io.write(address, value);
-        cycles
-    }
-
-    // Helper method for branching with BCC, BCS, BEQ, BMI, BNE, BPL, BVC, BVS calls
-    fn branch_if(&mut self, condition: bool) -> u8 {
-        let bb = self.byte() as i8;
-        let (address, boundary) = self.relative(bb);
-        match condition {
-            true  => {
-                self.registers.pc = address;
-                3 + if boundary { 1 } else { 0 }
-            },
-            false => 2,
-        }
-    }
 }
+
 
 /// Official Opcodes
 impl CPU6502 {
@@ -1300,58 +1161,6 @@ impl CPU6502 {
 /// Unofficial Opcodes
 impl CPU6502 {
 
-    /// 0x02, 0x12, 0x22, 0x32, 0x42, 0x52, 0x62, 0x72, 0x92, 0xB2, 0xD2, 0xF2 - Freeze
-    fn jam(&mut self) -> u8 {
-        std::process::exit(0);
-    }
-
-    /// Unofficial NOP Variants - Consumes operands but does nothing with them
-    ///    Implied - 0x1A, 0x3A, 0x5A, 0x7A, 0xDA, 0xFA
-    ///  Immediate - 0x80, 0x82, 0x89, 0xC2, 0xE2
-    ///   ZeroPage - 0x04, 0x44, 0x64
-    /// ZeroPage X - 0x14, 0x34, 0x54, 0x74, 0xD4, 0xF4
-    ///   Absolute - 0x0C
-    /// Absolute X - 0x1C, 0x3X, 0x5C, 0x7C, 0xDC, 0xFC
-    fn nop_unofficial(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            Implied => 2,
-            Immediate => { self.immediate(); 2 }
-            ZeroPage => { self.zero_page(); 3 }
-            ZeroPageX => { self.zero_page_x(); 4 }
-            Absolute => { self.absolute(); 4 }
-            AbsoluteX => {
-                let (_addr, _value, carry) = self.absolute_x();
-                4 + if carry { 1 } else { 0 }
-            }
-            _ => panic!("unsupported mode for unofficial nop : {:?}", mode)
-        }
-    }
-
-    /// 0xEB - USBC: SBC Immediate
-    fn usbc(&mut self) -> u8 {
-        self.sbc(Immediate)
-    }
-
-    /// 0xE7, 0xF7, 0xEF, 0xFF, 0xFB, 0xE3, 0xF3 - ISC: INC operand + SBC operand
-    fn isc(&mut self, mode: OperandMode) -> u8 {
-        self.inc(mode, true)
-    }
-
-    /// 0xC7, 0xD7, 0xDF, 0xCF, 0xDB, 0xC3, 0xD3 - DCP: DEC operand + CMP operand
-    fn dcp(&mut self, mode: OperandMode) -> u8 {
-        self.dec(mode, true)
-    }
-
-    /// 0xCB - SBX: CMP and DEX
-    fn sbx(&mut self, _mode: OperandMode) -> u8 {
-        self.registers.x &= self.registers.a;
-        let value = self.immediate();
-        self.alu_cmp(self.registers.x, value);
-        2
-    }
-
-    /// TODO REORDER UP
-
     /// 0x4B - ALR: AND operand + LSR
     fn alr(&mut self) -> u8 {
         let byte = self.immediate();
@@ -1390,6 +1199,21 @@ impl CPU6502 {
         2
     }
 
+    /// 0xC7, 0xD7, 0xDF, 0xCF, 0xDB, 0xC3, 0xD3 - DCP: DEC operand + CMP operand
+    fn dcp(&mut self, mode: OperandMode) -> u8 {
+        self.dec(mode, true)
+    }
+
+    /// 0xE7, 0xF7, 0xEF, 0xFF, 0xFB, 0xE3, 0xF3 - ISC: INC operand + SBC operand
+    fn isc(&mut self, mode: OperandMode) -> u8 {
+        self.inc(mode, true)
+    }
+
+    /// 0x02, 0x12, 0x22, 0x32, 0x42, 0x52, 0x62, 0x72, 0x92, 0xB2, 0xD2, 0xF2 - Freeze
+    fn jam(&mut self) -> u8 {
+        std::process::exit(0);
+    }
+
     /// 0xBB - LAS: LDA/TSX operand
     fn las(&mut self) -> u8 {
         let (_address, value, carry) = self.absolute_y();
@@ -1415,6 +1239,28 @@ impl CPU6502 {
         2
     }
 
+    /// Unofficial NOP Variants - Consumes operands but does nothing with them
+    ///    Implied - 0x1A, 0x3A, 0x5A, 0x7A, 0xDA, 0xFA
+    ///  Immediate - 0x80, 0x82, 0x89, 0xC2, 0xE2
+    ///   ZeroPage - 0x04, 0x44, 0x64
+    /// ZeroPage X - 0x14, 0x34, 0x54, 0x74, 0xD4, 0xF4
+    ///   Absolute - 0x0C
+    /// Absolute X - 0x1C, 0x3X, 0x5C, 0x7C, 0xDC, 0xFC
+    fn nop_unofficial(&mut self, mode: OperandMode) -> u8 {
+        match mode {
+            Implied => 2,
+            Immediate => { self.immediate(); 2 }
+            ZeroPage => { self.zero_page(); 3 }
+            ZeroPageX => { self.zero_page_x(); 4 }
+            Absolute => { self.absolute(); 4 }
+            AbsoluteX => {
+                let (_addr, _value, carry) = self.absolute_x();
+                4 + if carry { 1 } else { 0 }
+            }
+            _ => panic!("unsupported mode for unofficial nop : {:?}", mode)
+        }
+    }
+
     /// 0x27, 0x37, 0x2F, 0x3F, 0x3B, 0x23, 0x33 - RLA: ROL operand + AND operand
     fn rla(&mut self, mode: OperandMode) -> u8{
         self.rol(mode, true)
@@ -1428,6 +1274,14 @@ impl CPU6502 {
     /// 0x87, 0x97, 0x8F, 0x83 - SAX: Store A & X
     fn sax(&mut self, mode: OperandMode) -> u8 {
         self.store(mode, self.registers.a & self.registers.x)
+    }
+
+    /// 0xCB - SBX: CMP and DEX
+    fn sbx(&mut self, _mode: OperandMode) -> u8 {
+        self.registers.x &= self.registers.a;
+        let value = self.immediate();
+        self.alu_cmp(self.registers.x, value);
+        2
     }
 
     /// 0x9F, 0x93 - SHA: Store A & X & (Address+1)-High-Byte at Address
@@ -1470,7 +1324,6 @@ impl CPU6502 {
         self.asl(mode, true)
     }
 
-
     /// 0x47, 0x57, 0x4F, 0x5F, 0x5B, 0x43, 0x53 - SRE: LSR operand + EOR operand
     fn sre(&mut self, mode: OperandMode) -> u8 {
         self.lsr(mode, true)
@@ -1483,5 +1336,157 @@ impl CPU6502 {
         self.registers.s = result;
         self.io.write(address, result & (address.wrapping_add(1) & 0xFF00) as u8);
         5
+    }
+
+    /// 0xEB - USBC: SBC Immediate
+    fn usbc(&mut self) -> u8 {
+        self.sbc(Immediate)
+    }
+}
+
+
+/// Helper methods
+impl CPU6502 {
+
+    // Branching with BCC, BCS, BEQ, BMI, BNE, BPL, BVC, BVS calls
+    fn branch_if(&mut self, condition: bool) -> u8 {
+        let bb = self.byte() as i8;
+        let (address, boundary) = self.relative(bb);
+        match condition {
+            true  => {
+                self.registers.pc = address;
+                3 + if boundary { 1 } else { 0 }
+            },
+            false => 2,
+        }
+    }
+
+    // Generalize CMP calls with A, X, Y registers
+    fn cmp_general(&mut self, mode: OperandMode, source: u8) -> u8 {
+        let (value, cycles) = match mode {
+            Immediate => (self.immediate(), 2),
+            ZeroPage => {
+                let (_address, value) = self.zero_page();
+                (value, 3)
+            }
+            ZeroPageX => {
+                let (_address, value) = self.zero_page_x();
+                (value, 4)
+            }
+            Absolute => {
+                let (_address, value) = self.absolute();
+                (value, 4)
+            }
+            AbsoluteX => {
+                let (_address, value, carry) = self.absolute_x();
+                (value, 4 + if carry { 1 } else { 0 })
+            }
+            AbsoluteY => {
+                let (_address, value, carry) = self.absolute_y();
+                (value, 4 + if carry { 1 } else { 0 })
+            }
+            IndirectX => {
+                let (_address, value) = self.x_indirect();
+                (value, 6)
+            }
+            IndirectY => {
+                let (_address, value, carry) = self.indirect_y();
+                (value, 5 + if carry { 1 } else { 0 })
+            }
+            _ => panic!("unsupported mode for cmp : {:?}", mode)
+        };
+
+        self.alu_cmp(source, value);
+        cycles
+    }
+
+    // Loading for LDA, LDX, LDY calls
+    fn load(&mut self, mode: OperandMode) -> (u8, u8) {
+        let (value, cycles) = match mode {
+            Immediate => {
+                (self.immediate(), 2)
+            }
+            ZeroPage => {
+                let (_address, value) = self.zero_page();
+                (value, 3)
+            }
+            ZeroPageX => {
+                let (_address, value) = self.zero_page_x();
+                (value, 4)
+            }
+            ZeroPageY => {
+                let (_address, value) = self.zero_page_y();
+                (value, 4)
+            }
+            Absolute => {
+                let (_address, value) = self.absolute();
+                (value, 4)
+            }
+            AbsoluteX => {
+                let (_address, value, carry) = self.absolute_x();
+                (value, 4 + if carry { 1 } else { 0 })
+            }
+            AbsoluteY => {
+                let (_address, value, carry) = self.absolute_y();
+                (value, 4 + if carry { 1 } else { 0 })
+            },
+            IndirectX => {
+                let (_address, value) = self.x_indirect();
+                (value, 6)
+            }
+            IndirectY => {
+                let (_address, value, carry) = self.indirect_y();
+                (value, 5 + if carry { 1 } else { 0 })
+            }
+            _ => panic!("unsupported load mode: {:?}", mode)
+        };
+
+        self.registers.set_negative(value >= 0x80);
+        self.registers.set_zero(value == 0);
+
+        (value, cycles)
+    }
+
+    // Storing with STA, STX, STY calls
+    fn store(&mut self, mode: OperandMode, value: u8) -> u8 {
+        let (address, cycles) = match mode {
+            ZeroPage => {
+                let (address, _value) = self.zero_page();
+                (address, 3)
+            }
+            ZeroPageX => {
+                let (address, _value) = self.zero_page_x();
+                (address, 4)
+            }
+            ZeroPageY => {
+                let (address, _value) = self.zero_page_y();
+                (address, 4)
+            }
+            Absolute => {
+                let (address, _value) = self.absolute();
+                (address, 4)
+            }
+            AbsoluteX => {
+                let (address, _value, carry) = self.absolute_x();
+                (address, 5 + if carry { 1 } else { 0 })
+            }
+            AbsoluteY => {
+                let (address, _value, carry) = self.absolute_y();
+                (address, 5 + if carry { 1 } else { 0 })
+            }
+            IndirectX => {
+                let (address, _value) = self.x_indirect();
+                (address, 6)
+            }
+            IndirectY => {
+                let (address, _value, carry) = self.indirect_y();
+                (address, 6 + if carry { 1 } else { 0 })
+            }
+
+            _ => panic!("unsupported mode: {:?}", mode)
+        };
+
+        self.io.write(address, value);
+        cycles
     }
 }
