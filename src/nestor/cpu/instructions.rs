@@ -288,49 +288,41 @@ impl CPU6502 {
 
     // Helper method to generalize CMP calls with A, X, Y registers
     fn cmp_general(&mut self, mode: OperandMode, source: u8) -> u8 {
-        match mode {
-            Immediate => {
-                let value = self.immediate();
-                self.alu_cmp(source, value);
-                2
-            }
+        let (value, cycles) = match mode {
+            Immediate => (self.immediate(), 2),
             ZeroPage => {
                 let (_address, value) = self.zero_page();
-                self.alu_cmp(source, value);
-                3
+                (value, 3)
             }
             ZeroPageX => {
                 let (_address, value) = self.zero_page_x();
-                self.alu_cmp(source, value);
-                4
+                (value, 4)
             }
             Absolute => {
                 let (_address, value) = self.absolute();
-                self.alu_cmp(source, value);
-                4
+                (value, 4)
             }
             AbsoluteX => {
                 let (_address, value, carry) = self.absolute_x();
-                self.alu_cmp(source, value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             }
             AbsoluteY => {
                 let (_address, value, carry) = self.absolute_y();
-                self.alu_cmp(source, value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             }
             IndirectX => {
                 let (_address, value) = self.x_indirect();
-                self.alu_cmp(source, value);
-                6
+                (value, 6)
             }
             IndirectY => {
                 let (_address, value, carry) = self.indirect_y();
-                self.alu_cmp(source, value);
-                5 + if carry { 1 } else { 0 }
+                (value, 5 + if carry { 1 } else { 0 })
             }
             _ => panic!("unsupported mode for cmp : {:?}", mode)
-        }
+        };
+
+        self.alu_cmp(source, value);
+        cycles
     }
 }
 
@@ -339,97 +331,81 @@ impl CPU6502 {
 
     /// 0x61, 0x65, 0x69, 0x6D, 0x71, 0x75, 0x79, 0x7D  - Add with Carry
     fn adc(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            Immediate => {
-                let value = self.immediate();
-                self.alu_adc(value);
-                2
-            }
+        let (value, cycles) = match mode {
+            Immediate => (self.immediate(), 2),
             ZeroPage => {
                 let (_address, value) = self.zero_page();
-                self.alu_adc(value);
-                3
+                (value, 3)
             }
             ZeroPageX => {
                 let (_address, value) = self.zero_page_x();
-                self.alu_adc(value);
-                4
+                (value, 4)
             }
             Absolute => {
                 let (_address, value) = self.absolute();
-                self.alu_adc(value);
-                4
+                (value, 4)
             }
             AbsoluteX => {
                 let (_address, value, carry) = self.absolute_x();
-                self.alu_adc(value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             }
             AbsoluteY => {
                 let (_address, value, carry) = self.absolute_y();
-                self.alu_adc(value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             }
             IndirectX => {
                 let (_address, value) = self.x_indirect();
-                self.alu_adc(value);
-                6
+                (value, 6)
             }
             IndirectY => {
                 let (_address, value, carry) = self.indirect_y();
-                self.alu_adc(value);
-                5 + if carry { 1 } else { 0 }
+                (value, 5 + if carry { 1 } else { 0 })
             }
 
             _ => panic!("unsupported mode for adc : {:?}", mode)
-        }
+        };
+
+        self.alu_adc(value);
+        cycles
     }
 
     /// 0x21, 0x25, 0x29, 0x2D, 0x31, 0x35, 0x39, 0x3D - Bitwise AND with Accumulator
     fn and(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            Immediate => {
-                let value = self.immediate();
-                self.alu_and(value);
-                2
-            },
+        let (value, cycles) = match mode {
+            Immediate => (self.immediate(), 2),
             ZeroPage => {
                 let (_address, value) = self.zero_page();
-                self.alu_and(value);
-                3
+                (value, 3)
             },
             ZeroPageX => {
                 let (_address, value) = self.zero_page_x();
-                self.alu_and(value);
-                4
+                (value, 4)
             },
             Absolute => {
                 let (_address, value) = self.absolute();
-                self.alu_and(value);
-                4
+                (value, 4)
             },
             AbsoluteX => {
                 let (_address, value, carry) = self.absolute_x();
-                self.alu_and(value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             },
             AbsoluteY => {
                 let (_address, value, carry) = self.absolute_y();
-                self.alu_and(value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             },
             IndirectX => {
                 let (_address, value) = self.x_indirect();
-                self.alu_and(value);
-                6
+                (value, 6)
             },
             IndirectY => {
                 let (_address, value, carry) = self.indirect_y();
-                self.alu_and(value);
-                5 + if carry { 1 } else { 0 }
+                (value, 5 + if carry { 1 } else { 0 })
             }
             _ => panic!("unsupported mode for and : {:?}", mode)
-        }
+        };
+
+        self.alu_and(value);
+        cycles
     }
 
     /// 0x06, 0x0A, 0x0E, 0x16, 0x01E - Arithmetic Shift Left
@@ -486,25 +462,25 @@ impl CPU6502 {
         };
 
         if do_ora { self.alu_ora(result) }
-
         cycles
     }
 
     /// 0x24, 0x2C - BIT
     fn bit(&mut self, mode: OperandMode) -> u8 {
-        match mode {
+        let (value, cycles) = match mode {
             ZeroPage => {
                 let (_address, value) = self.zero_page();
-                self.alu_bit(value);
-                3
+                (value, 3)
             }
             Absolute => {
                 let (_address, value) = self.absolute();
-                self.alu_bit(value);
-                4
+                (value, 4)
             }
             _ => panic!("unsupported mode for bit : {:?}", mode)
-        }
+        };
+
+        self.alu_bit(value);
+        cycles
     }
 
     /// 0x00 - Break
@@ -512,7 +488,6 @@ impl CPU6502 {
         self.push_word(self.registers.pc);
         self.php();
         self.sei();
-//        self.registers.pc = self.registers.pc.wrapping_add(1);
         self.registers.pc = self.io.read(0xFFFE) as u16 | ((self.io.read(0xFFFF) as u16) << 8);
         7
     }
@@ -543,153 +518,119 @@ impl CPU6502 {
 
     /// 0xC6, 0xCE, 0xD6, 0xDE - Decrement Memory
     fn dec(&mut self, mode: OperandMode, do_cmp: bool) -> u8 {
-        let (result, cycles) = match mode {
+        let (address, value, cycles) = match mode {
             ZeroPage => {
                 let (address, value) = self.zero_page();
-                let result = self.alu_dec(value);
-                self.io.write(address, result);
-                (result, 5)
+                (address, value, 5)
             }
             ZeroPageX => {
                 let (address, value) = self.zero_page_x();
-                let result = self.alu_dec(value);
-                self.io.write(address, result);
-                (result, 6)
+                (address, value, 6)
             }
             Absolute => {
                 let (address, value) = self.absolute();
-                let result = self.alu_dec(value);
-                self.io.write(address, result);
-                (result, 6)
+                (address, value, 6)
             }
             AbsoluteX => {
                 let (address, value, _carry) = self.absolute_x();
-                let result = self.alu_dec(value);
-                self.io.write(address, result);
-                (result, 7)
+                (address, value, 7)
             }
             AbsoluteY => {
                 let (address, value, _carry) = self.absolute_y();
-                let result = self.alu_dec(value);
-                self.io.write(address, result);
-                (result, 7)
+                (address, value, 7)
             }
             IndirectX => {
                 let (address, value) = self.x_indirect();
-                let result = self.alu_dec(value);
-                self.io.write(address, result);
-                (result, 8)
+                (address, value, 8)
             }
             IndirectY => {
                 let (address, value, _carry) = self.indirect_y();
-                let result = self.alu_dec(value);
-                self.io.write(address, result);
-                (result, 8)
+                (address, value, 8)
             }
             _ => panic!("unsupported mode for dec : {:?}", mode)
         };
 
+        let result = self.alu_dec(value);
+        self.io.write(address, result);
         if do_cmp { self.alu_cmp(self.registers.a, result) }
-
         cycles
     }
 
     /// 0x41, 0x45, 0x49, 0x4D, 0x51, 0x55, 0x59, 0x5D - Bitwise Exclusive OR
     fn eor(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            Immediate => {
-                let value = self.immediate();
-                self.alu_xor(value);
-                2
-            }
+        let (value, cycles) = match mode {
+            Immediate => (self.immediate(), 2),
             ZeroPage => {
                 let (_address, value) = self.zero_page();
-                self.alu_xor(value);
-                3
+                (value, 3)
             }
             ZeroPageX => {
                 let (_address, value) = self.zero_page_x();
-                self.alu_xor(value);
-                4
+                (value, 4)
             }
             Absolute => {
                 let (_address, value) = self.absolute();
-                self.alu_xor(value);
-                4
+                (value, 4)
             }
             AbsoluteX => {
                 let (_address, value, carry) = self.absolute_x();
-                self.alu_xor(value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             }
             AbsoluteY => {
                 let (_address, value, carry) = self.absolute_y();
-                self.alu_xor(value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             }
             IndirectX => {
                 let (_address, value) = self.x_indirect();
-                self.alu_xor(value);
-                6
+                (value, 6)
             }
             IndirectY => {
                 let (_address, value, carry) = self.indirect_y();
-                self.alu_xor(value);
-                5 + if carry { 1 } else { 0 }
+                (value, 5 + if carry { 1 } else { 0 })
             }
-
             _ => panic!("unsupported mode for eor : {:?}", mode)
-        }
+        };
+
+        self.alu_xor(value);
+        cycles
     }
 
     /// 0xE6, 0xEE, 0xF6, 0xFE - Increment Memory
     fn inc(&mut self, mode: OperandMode, do_sbc: bool) -> u8 {
-        let (result, cycles) = match mode {
+        let (address, value, cycles) = match mode {
             ZeroPage => {
                 let (address, value) = self.zero_page();
-                let result = self.alu_inc(value);
-                self.io.write(address, result);
-                (result, 5)
+                (address, value, 5)
             }
             ZeroPageX => {
                 let (address, value) = self.zero_page_x();
-                let result = self.alu_inc(value);
-                self.io.write(address, result);
-                (result, 6)
+                (address, value, 6)
             }
             Absolute => {
                 let (address, value) = self.absolute();
-                let result = self.alu_inc(value);
-                self.io.write(address, result);
-                (result, 6)
+                (address, value, 6)
             }
             AbsoluteX => {
                 let (address, value, _carry) = self.absolute_x();
-                let result = self.alu_inc(value);
-                self.io.write(address, result);
-                (result, 7)
+                (address, value, 7)
             }
             AbsoluteY => {
                 let (address, value, _carry) = self.absolute_y();
-                let result = self.alu_inc(value);
-                self.io.write(address, result);
-                (result, 7)
+                (address, value, 7)
             }
             IndirectX => {
                 let (address, value) = self.x_indirect();
-                let result = self.alu_inc(value);
-                self.io.write(address, result);
-                (result, 8)
+                (address, value, 8)
             }
             IndirectY => {
                 let (address, value, _carry) = self.indirect_y();
-                let result = self.alu_inc(value);
-                self.io.write(address, result);
-                (result, 8)
+                (address, value, 8)
             }
             _ => panic!("unsupported mode for inc : {:?}", mode)
         };
 
+        let result = self.alu_inc(value);
+        self.io.write(address, result);
         if do_sbc {
             self.alu_sbc(result);
         };
@@ -787,49 +728,41 @@ impl CPU6502 {
 
     /// 0x01, 0x05, 0x09, 0x0D, 0x11, 0x15, 0x19, 0x1D - Bitwise OR with Accumulator
     fn ora(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            Immediate => {
-                let value = self.immediate();
-                self.alu_ora(value);
-                2
-            }
+        let (value, cycles) = match mode {
+            Immediate => (self.immediate(), 2),
             ZeroPage => {
                 let (_address, value) = self.zero_page();
-                self.alu_ora(value);
-                3
+                (value, 3)
             }
             ZeroPageX => {
                 let (_address, value) = self.zero_page_x();
-                self.alu_ora(value);
-                4
+                (value, 4)
             }
             Absolute => {
                 let (_address, value) = self.absolute();
-                self.alu_ora(value);
-                4
+                (value, 4)
             }
             AbsoluteX => {
                 let (_address, value, carry) = self.absolute_x();
-                self.alu_ora(value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             }
             AbsoluteY => {
                 let (_address, value, carry) = self.absolute_y();
-                self.alu_ora(value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             }
             IndirectX => {
                 let (_address, value) = self.x_indirect();
-                self.alu_ora(value);
-                6
+                (value, 6)
             }
             IndirectY => {
                 let (_address, value, carry)= self.indirect_y();
-                self.alu_ora(value);
-                5 + if carry { 1 } else { 0 }
+                (value, 5 + if carry { 1 } else { 0 })
             }
             _ => panic!("unsupported mode for ora : {:?}", mode)
-        }
+        };
+
+        self.alu_ora(value);
+        cycles
     }
 
     /// 0x26, 0x2A, 0x2E, 0x36, 0x3E - Rotate Left
@@ -965,49 +898,41 @@ impl CPU6502 {
 
     /// 0xE1, 0xE5, 0xE9, 0xED, 0xF1, 0xF5, 0xF9, 0xFD - Subtract with Carry
     fn sbc(&mut self, mode: OperandMode) -> u8 {
-        match mode {
-            Immediate => {
-                let value = self.immediate();
-                self.alu_sbc(value);
-                2
-            }
+        let (value, cycles) = match mode {
+            Immediate => (self.immediate(), 2),
             ZeroPage => {
                 let (_address, value) = self.zero_page();
-                self.alu_sbc(value);
-                3
+                (value, 3)
             }
             ZeroPageX => {
                 let (_address, value) = self.zero_page_x();
-                self.alu_sbc(value);
-                4
+                (value, 4)
             }
             Absolute => {
                 let (_address, value) = self.absolute();
-                self.alu_sbc(value);
-                4
+                (value, 4)
             }
             AbsoluteX => {
                 let (_address, value, carry) = self.absolute_x();
-                self.alu_sbc(value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             }
             AbsoluteY => {
                 let (_address, value, carry) = self.absolute_y();
-                self.alu_sbc(value);
-                4 + if carry { 1 } else { 0 }
+                (value, 4 + if carry { 1 } else { 0 })
             }
             IndirectX => {
                 let (_address, value) = self.x_indirect();
-                self.alu_sbc(value);
-                6
+                (value, 6)
             }
             IndirectY => {
                 let (_address, value, carry) = self.indirect_y();
-                self.alu_sbc(value);
-                5 + if carry { 1 } else { 0 }
+                (value, 5 + if carry { 1 } else { 0 })
             }
             _ => panic!("unsupported mode for sbc : {:?}", mode)
-        }
+        };
+
+        self.alu_sbc(value);
+        cycles
     }
 
     /***** Stack Instruction *****/
@@ -1033,7 +958,6 @@ impl CPU6502 {
     /// 0x68 - Pull Accumulator
     fn pla(&mut self) -> u8 {
         let value = self.pull();
-        // println!("PULL: {:#04X}", value);
         self.registers.a = value;
         self.registers.set_negative(value >= 0x80);
         self.registers.set_zero(value == 0);
@@ -1202,50 +1126,45 @@ impl CPU6502 {
     /***** Store *****/
 
     fn store(&mut self, mode: OperandMode, value: u8) -> u8 {
-        match mode {
+        let (address, cycles) = match mode {
             ZeroPage => {
                 let (address, _value) = self.zero_page();
-                self.io.write(address, value);
-                3
+                (address, 3)
             }
             ZeroPageX => {
                 let (address, _value) = self.zero_page_x();
-                self.io.write(address, value);
-                4
+                (address, 4)
             }
             ZeroPageY => {
                 let (address, _value) = self.zero_page_y();
-                self.io.write(address, value);
-                4
+                (address, 4)
             }
             Absolute => {
                 let (address, _value) = self.absolute();
-                self.io.write(address, value);
-                4
+                (address, 4)
             }
             AbsoluteX => {
                 let (address, _value, carry) = self.absolute_x();
-                self.io.write(address, value);
-                5 + if carry { 1 } else { 0 }
+                (address, 5 + if carry { 1 } else { 0 })
             }
             AbsoluteY => {
                 let (address, _value, carry) = self.absolute_y();
-                self.io.write(address, value);
-                5 + if carry { 1 } else { 0 }
+                (address, 5 + if carry { 1 } else { 0 })
             }
             IndirectX => {
                 let (address, _value) = self.x_indirect();
-                self.io.write(address, value);
-                6
+                (address, 6)
             }
             IndirectY => {
                 let (address, _value, carry) = self.indirect_y();
-                self.io.write(address, value);
-                6 + if carry { 1 } else { 0 }
+                (address, 6 + if carry { 1 } else { 0 })
             }
 
             _ => panic!("unsupported mode: {:?}", mode)
-        }
+        };
+
+        self.io.write(address, value);
+        cycles
     }
 
     /// 0x81, 0x85, 0x8D, 0x91, 0x96, 0x99, 0x9D - Store Accumulator
@@ -1382,10 +1301,10 @@ impl CPU6502 {
     fn nop_unofficial(&mut self, mode: OperandMode) -> u8 {
         match mode {
             Implied => 2,
-            Immediate => { let _value = self.immediate(); 2 }
-            ZeroPage => { let (_addr, _value) = self.zero_page(); 3 }
-            ZeroPageX => { let (_addr, _value) = self.zero_page_x(); 4 }
-            Absolute => { let (_addr, _value) = self.absolute(); 4 }
+            Immediate => { self.immediate(); 2 }
+            ZeroPage => { self.zero_page(); 3 }
+            ZeroPageX => { self.zero_page_x(); 4 }
+            Absolute => { self.absolute(); 4 }
             AbsoluteX => {
                 let (_addr, _value, carry) = self.absolute_x();
                 4 + if carry { 1 } else { 0 }
@@ -1436,21 +1355,21 @@ impl CPU6502 {
     }
 
     fn sha(&mut self, mode: OperandMode) -> u8 {
-        match mode {
+        let address = match mode {
             AbsoluteY => {
                 let (address, _value, _carry) = self.absolute_y();
-                let result = self.registers.a & self.registers.x & 0x07;
-                self.io.write(address, result);
-                5
+                address
             }
             IndirectY => {
                 let (address, _value, _carry) = self.indirect_y();
-                let result = self.registers.a & self.registers.x & 0x07;
-                self.io.write(address, result);
-                5
+                address
             }
             _ => panic!("unsupported mode for sha: {:?}", mode)
-        }
+        };
+
+        let result = self.registers.a & self.registers.x & 0x07;
+        self.io.write(address, result);
+        5
     }
 
     fn shx(&mut self) -> u8 {
