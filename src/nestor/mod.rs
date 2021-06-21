@@ -5,6 +5,7 @@ mod cpu;
 mod io;
 mod traits;
 mod enums;
+mod apu;
 
 pub struct Nestor {
     cpu: cpu::CPU6502
