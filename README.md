@@ -78,4 +78,11 @@ Sources:
 | `test_tri_lin_ctr` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
 | `volume_tests` | [tepples](https://pineight.com/) | <ul><li>[ ]</li></ul> |
 
+### Mapper Tests
+
+| Test Name | Author | Status |
+| :-: | :-: | :-: |
+
+
 ### Input Tests
+| `31_test` |  |  <ul><li>[ ]</li></ul> |
