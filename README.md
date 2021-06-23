@@ -31,8 +31,10 @@ Sources:
 | `instr_misc` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
 | `instr_test_v5` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
 | `instr_timing` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
-| `nestest` | [kevtris](http://kevtris.org/) | <ul><li>[ ]</li></ul> |
+| `nestest` | [kevtris](http://kevtris.org/) | <ul><li>[X]\*</li></ul> |
 | `ram_retain` | [rainwarrior](http://rainwarrior.ca/) | <ul><li>[ ]</li></ul> |
+
+\* Nestor does pass nestest's CPU component, as the PPU / APU are not implemented,
 
 ### PPU Tests
 
@@ -121,3 +123,8 @@ Sources:
 | `Telling LYs` | [tepples](https://pineight.com/) | <ul><li>[ ]</li></ul> |
 | `crtltest` | [rainwarrior](http://rainwarrior.ca/) | <ul><li>[ ]</li></ul> |
 | `raw` | lidnariq | <ul><li>[ ]</li></ul> |
+
+## Acknowledgements
+
+- The [Nesdev Wiki](http://wiki.nesdev.com/w/index.php/Nesdev_Wiki) for being an invaluable resource for every detail of development.
+- Test ROM authors such as [blargg](http://blargg.8bitalley.com/), [rainwarrior](http://rainwarrior.ca/), and others, for providing extremely accessible means of testing and validation.
