@@ -20,6 +20,7 @@ Sources:
 ### CPU Tests
 
 | Test Name | Author | Status |
+| :-: | :-: | :-: |
 | `branch_timing_tests` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
 | `cpu_dummy_reads` | [blargg](http://blargg.8bitalley.com/) |  <ul><li>[ ]</li></ul> |
 | `cpu_dummy_writes` | [bisqwit](https://github.com/bisqwit) | <ul><li>[ ]</li></ul> |
@@ -36,6 +37,7 @@ Sources:
 ### PPU Tests
 
 | Test Name | Author | Status |
+| :-: | :-: | :-: |
 | `color_test` | [rainwarrior](http://rainwarrior.ca/) | <ul><li>[ ]</li></ul> |
 | `blargg_ppu_tests_2005.09.15b` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
 | `full_palette` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
@@ -57,8 +59,23 @@ Sources:
 | `tvpassfail` | [tepples](https://pineight.com/) | <ul><li>[ ]</li></ul> |
 | `vbl_nmi_timing` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
 
+### APU Tests
 
-
-### Mapper Tests
+| Test Name | Author | Status |
+| :-: | :-: | :-: |
+| `apu_mixer` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
+| `apu_phase_reset` | Rahsennor | <ul><li>[ ]</li></ul> |
+| `apu_reset` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
+| `apu_test` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
+| `blargg_apu_2005.07.30` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
+| `dmc_dma_during_read4` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
+| `dpcmletterbox` | [tepples](https://pineight.com/) | <ul><li>[ ]</li></ul> |
+| `square_timer_div2` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
+| `test_apu_2 (1-10)` | x0000 | <ul><li>[ ]</li></ul> |
+| `test_apu_env` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
+| `test_apu_sweep` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
+| `test_apu_timers` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
+| `test_tri_lin_ctr` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
+| `volume_tests` | [tepples](https://pineight.com/) | <ul><li>[ ]</li></ul> |
 
 ### Input Tests
