@@ -82,7 +82,42 @@ Sources:
 
 | Test Name | Author | Status |
 | :-: | :-: | :-: |
-
+| `31_test` | [rainwarrior](http://rainwarrior.ca/) |  <ul><li>[ ]</li></ul> |
+| `BNTest` | [tepples](https://pineight.com/) |  <ul><li>[ ]</li></ul> |
+| `bxrom_512k_test` | [rainwarrior](http://rainwarrior.ca/) |  <ul><li>[ ]</li></ul> |
+| `FdslrqTests (v7)` | Sour |  <ul><li>[ ]</li></ul> |
+| `exram` | [Quietust](https://github.com/quietust) |  <ul><li>[ ]</li></ul> |
+| `famicom_audio_swap_tests` | [rainwarrior](http://rainwarrior.ca/) |  <ul><li>[ ]</li></ul> |
+| `fme7acktest-r1` | [tepples](https://pineight.com/) |  <ul><li>[ ]</li></ul> |
+| `fme7ramtest-r1` | [tepples](https://pineight.com/) |  <ul><li>[ ]</li></ul> |
+| `Holy Mapperel` | [tepples](https://pineight.com/) |  <ul><li>[ ]</li></ul> |
+| `mmc3bigchrram` | [tepples](https://pineight.com/) |  <ul><li>[ ]</li></ul> |
+| `mmc3_test` | [blargg](http://blargg.8bitalley.com/) |  <ul><li>[ ]</li></ul> |
+| `mmc5test` | Drag |  <ul><li>[ ]</li></ul> |
+| `mmc5test_v2` | AWJ |  <ul><li>[ ]</li></ul> |
+| `serom` | lidnariq |  <ul><li>[ ]</li></ul> |
+| `NES 2.0 Submapper Test - 2_test` | [rainwarrior](http://rainwarrior.ca/) |  <ul><li>[ ]</li></ul> |
+| `NES 2.0 Submapper Test - 3_test` | [rainwarrior](http://rainwarrior.ca/) |  <ul><li>[ ]</li></ul> |
+| `NES 2.0 Submapper Test - 7_test` | [rainwarrior](http://rainwarrior.ca/) |  <ul><li>[ ]</li></ul> |
+| `NES 2.0 Submapper Test - 34_test` | [rainwarrior](http://rainwarrior.ca/) |  <ul><li>[ ]</li></ul> |
+| `test28` | [tepples](https://pineight.com/) |  <ul><li>[ ]</li></ul> |
+| `vrc24test` | AWJ |  <ul><li>[ ]</li></ul> |
+| `vrc6test` | natt |  <ul><li>[ ]</li></ul> |
+| `mmc5ramsize` | [rainwarrior](http://rainwarrior.ca/) | <ul><li>[ ]</li></ul> |
 
 ### Input Tests
-| `31_test` |  |  <ul><li>[ ]</li></ul> |
+
+| Test Name | Author | Status |
+| :-: | :-: | :-: |
+| `allpads` | [tepples](https://pineight.com/) | <ul><li>[ ]</li></ul> |
+| `dma_sync_test_v2` | Rahsennor | <ul><li>[ ]</li></ul> |
+| `PaddleTest3` | 3gengames | <ul><li>[ ]</li></ul> |
+| `read_joy3` | [blargg](http://blargg.8bitalley.com/) | <ul><li>[ ]</li></ul> |
+| `Zap Ruder` | [tepples](https://pineight.com/) | <ul><li>[ ]</li></ul> |
+| `spadtest-nes` | [tepples](https://pineight.com/) | <ul><li>[ ]</li></ul> |
+| `vaus_test` | [tepples](https://pineight.com/) | <ul><li>[ ]</li></ul> |
+| `mset` | [rainwarrior](http://rainwarrior.ca/) | <ul><li>[ ]</li></ul> |
+| `mict` | [rainwarrior](http://rainwarrior.ca/) | <ul><li>[ ]</li></ul> |
+| `Telling LYs` | [tepples](https://pineight.com/) | <ul><li>[ ]</li></ul> |
+| `crtltest` | [rainwarrior](http://rainwarrior.ca/) | <ul><li>[ ]</li></ul> |
+| `raw` | lidnariq | <ul><li>[ ]</li></ul> |
