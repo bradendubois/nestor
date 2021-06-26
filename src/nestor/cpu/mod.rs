@@ -54,6 +54,10 @@ impl CPU6502 {
     }
 
     fn trace_store(&mut self, message: String) {
+
+        #[cfg(feature = "trace")]
+        println!("{}", message);
+
         if let Some(trace) = self.execution_trace.as_mut() {
             trace.push(message);
         }
@@ -102,6 +106,83 @@ impl CPU6502 {
     fn pull_word(&mut self) -> u16 {
         (self.pull() as u16) | ((self.pull() as u16) << 8)
     }
+
+}
+
+
+impl Power for CPU6502 {
+
+    /// POWER - Initializes system state to normal values
+    fn power_up(&mut self) {
+
+        self.registers.power_up();
+
+        for address in 0x4000..=0x4013 {
+            self.io.write(address, 0x00);
+        }
+
+        self.io.write(0x4015, 0x00);
+        self.io.write(0x4017, 0x00);
+    }
+
+
+    /// RESET - Adjusts the CPU (and registers) if a system reset occurs
+    fn reset(&mut self) {
+
+        self.registers.reset();
+
+        self.io.write(0x4017, 0x00);
+    }
+}
+
+
+#[cfg(test)]
+mod test {
+
+    use crate::nestor::cpu::CPU6502;
+    use crate::nestor::cartridge::Cartridge;
+
+    #[test]
+    fn cpu_nestest() {
+
+        let cartridge = Cartridge::new("./roms/testing/cpu/nestest/nestest.nes");
+        let mut reference_file: Vec<String> = std::fs::read_to_string("./roms/testing/cpu/nestest/nestest-expected.txt").unwrap().split(' ').flat_map(str::parse::<String>).collect::<Vec<_>>();
+        reference_file.reverse();
+
+        let mut cpu = CPU6502::new(cartridge, true, Some(0xC66E));
+
+        cpu.registers.pc = 0x0C000;
+        cpu.registers.p = 0x24;
+        cpu.run();
+
+        let x = cpu.execution_trace.as_mut().unwrap();
+        x.reverse();
+
+        assert!(x.len() > 8000);
+
+        while reference_file.len() > 0 {
+            let current = x.pop();
+            let expect = reference_file.pop();
+
+            assert_eq!(current.unwrap().trim(), expect.unwrap().trim());
+        }
+    }
+
+    #[test]
+    fn cpu_instr_timing() {
+
+        let cartridge = Cartridge::new("./roms/testing/cpu/instr_timing/instr_timing.nes");
+
+        let mut cpu = CPU6502::new(cartridge, true, Some(0xC66E));
+
+        cpu.registers.pc = 0x0C000;
+        cpu.registers.p = 0x24;
+        cpu.run();
+    }
+}
+
+
+impl CPU6502 {
 
     /**************************/
     /*           ALU          */
@@ -224,6 +305,10 @@ impl CPU6502 {
         self.alu_adc(!value);
     }
 
+}
+
+impl CPU6502 {
+
     /**************************/
     /*    Addressing Modes    */
     /**************************/
@@ -313,65 +398,5 @@ impl CPU6502 {
         let lower = self.io.read(address);
         let upper = self.io.read((address & 0xFF00) | ((address + 1) & 0x00FF));
         ((upper as u16) << 8) | (lower as u16)
-    }
-}
-
-
-impl Power for CPU6502 {
-
-    /// POWER - Initializes system state to normal values
-    fn power_up(&mut self) {
-
-        self.registers.power_up();
-
-        for address in 0x4000..=0x4013 {
-            self.io.write(address, 0x00);
-        }
-
-        self.io.write(0x4015, 0x00);
-        self.io.write(0x4017, 0x00);
-    }
-
-
-    /// RESET - Adjusts the CPU (and registers) if a system reset occurs
-    fn reset(&mut self) {
-
-        self.registers.reset();
-
-        self.io.write(0x4017, 0x00);
-    }
-}
-
-
-#[cfg(test)]
-mod test {
-
-    use crate::nestor::cpu::CPU6502;
-    use crate::nestor::cartridge::Cartridge;
-
-    #[test]
-    fn nestest() {
-
-        let cartridge = Cartridge::new("./roms/testing/cpu/nestest/nestest.nes");
-        let mut reference_file: Vec<String> = std::fs::read_to_string("./roms/testing/cpu/nestest/nestest-expected.txt").unwrap().split(' ').flat_map(str::parse::<String>).collect::<Vec<_>>();
-        reference_file.reverse();
-
-        let mut cpu = CPU6502::new(cartridge, true, Some(0xC66E));
-
-        cpu.registers.pc = 0x0C000;
-        cpu.registers.p = 0x24;
-        cpu.run();
-
-        let x = cpu.execution_trace.as_mut().unwrap();
-        x.reverse();
-
-        assert!(x.len() > 8000);
-
-        while x.len() > 0 {
-            let current = x.pop();
-            let expect = reference_file.pop();
-
-            assert_eq!(current.unwrap().trim(), expect.unwrap().trim());
-        }
     }
 }
