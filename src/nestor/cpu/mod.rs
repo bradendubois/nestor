@@ -353,7 +353,7 @@ mod test {
     fn nestest() {
 
         let cartridge = Cartridge::new("./roms/testing/cpu/nestest/nestest.nes");
-        let mut reference_file: Vec<String> = std::fs::read_to_string("./roms/testing/cpu/nestest/nestest-try-trim.txt").unwrap().split(' ').flat_map(str::parse::<String>).collect::<Vec<_>>();
+        let mut reference_file: Vec<String> = std::fs::read_to_string("./roms/testing/cpu/nestest/nestest-expected.txt").unwrap().split(' ').flat_map(str::parse::<String>).collect::<Vec<_>>();
         reference_file.reverse();
 
         let mut cpu = CPU6502::new(cartridge, true, Some(0xC66E));
