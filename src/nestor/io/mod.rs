@@ -25,7 +25,6 @@ impl IO {
 impl MemoryMap for IO {
 
     fn read(&self, address: u16) -> u8 {
-        // if address == 0x0180 { panic!("address: {:#06X}", address)}
         match address {
             0x0000..=0x07FF => self.ram[address as usize],
             0x0800..=0x1FFF => self.ram[(address & 0x07FF) as usize],
@@ -41,8 +40,6 @@ impl MemoryMap for IO {
 
     fn write(&mut self, address: u16, value: u8) {
         match address {
-            // 0x0002 => panic!("{:#06X} {:#04X}", address, value),
-            // 0x0003 => panic!("{:#06X} {:#04X}", address, value),
             0x0000..=0x07FF => self.ram[address as usize] = value,
             0x0800..=0x1FFF => self.ram[(address % 0x07FF) as usize] = value,
             0x2000..=0x2007 => (),

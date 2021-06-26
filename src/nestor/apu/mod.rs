@@ -92,7 +92,7 @@ impl Power for APU {
     fn reset(&mut self) {
         self.write(0x4015, 0x00);
         self.write(0x4017, 0x00);
-        /// TODO - Triangle Phase, DPCM Output AND 1
+        // TODO - Triangle Phase, DPCM Output AND 1
     }
 }
 
@@ -104,7 +104,7 @@ impl MemoryMap for APU {
 
             0x4015 => self.status,
 
-            _ => panic!("unmapped apu register: {:#06X}", address)
+            _ => 0 // panic!("unmapped apu register: {:#06X}", address)
         }
     }
 

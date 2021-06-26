@@ -7,35 +7,55 @@ use super::cartridge::Cartridge;
 use super::io::IO;
 
 use registers::Registers;
+use std::process::exit;
 
 
 pub struct CPU6502 {
     registers: Registers,
     io: IO,
+
+    pub execution_trace: Option<Vec<String>>,
+    exit_code: Option<u16>,
 }
 
 
 impl CPU6502 {
 
     /// Constructor for a new CPU
-    pub fn new(cartridge: Cartridge) -> CPU6502 {
+    pub fn new(cartridge: Cartridge, trace: bool, exit_code: Option<u16>) -> CPU6502 {
         CPU6502 {
             registers: Registers::new(),
-            io: IO::new(cartridge)
+            io: IO::new(cartridge),
+            exit_code,
+            execution_trace: if trace || !exit_code.is_none() { Some(Vec::new()) } else { None }
         }
     }
 
     /// Run the CPU in an infinite loop until stopped
     pub fn run(&mut self) {
-        let mut clock = 0;
-        loop {
-            print!("{:04X} ", self.registers.pc);
+        'core: loop {
+
+            self.trace_store(format!("{:04X}", self.registers.pc));
+
+            if self.exit_code.is_some() && self.exit_code.unwrap() == self.registers.pc {
+                break 'core
+            }
+
             let opcode = self.byte();
 
             self.call(opcode);
-            clock+=1;
-            println!("A:{:02X} X:{:02X} Y:{:02X} P:{:02X} SP:{:02X}", self.registers.a, self.registers.x, self.registers.y, self.registers.p, self.registers.s);
-            if clock == 9000 { std::process::exit(0) };
+
+            self.trace_store(format!("A:{:02X}", self.registers.a));
+            self.trace_store(format!("X:{:02X}", self.registers.x));
+            self.trace_store(format!("Y:{:02X}", self.registers.y));
+            self.trace_store(format!("P:{:02X}", self.registers.p));
+            self.trace_store(format!("SP:{:02X}", self.registers.s));
+        }
+    }
+
+    fn trace_store(&mut self, message: String) {
+        if let Some(trace) = self.execution_trace.as_mut() {
+            trace.push(message);
         }
     }
 
@@ -47,7 +67,7 @@ impl CPU6502 {
     pub fn byte(&mut self) -> u8 {
         let result = self.io.read(self.registers.pc);
         self.registers.pc = self.registers.pc.wrapping_add(1);
-        print!("{:02X} ", result);
+        self.trace_store(format!("{:02X} ", result));
         result
     }
 
@@ -325,15 +345,33 @@ impl Power for CPU6502 {
 
 #[cfg(test)]
 mod test {
+
     use crate::nestor::cpu::CPU6502;
     use crate::nestor::cartridge::Cartridge;
 
     #[test]
     fn nestest() {
-        let cartridge = Cartridge::new("./roms/testing/nestest.nes");
-        let mut cpu = CPU6502::new(cartridge);
+
+        let cartridge = Cartridge::new("./roms/testing/cpu/nestest/nestest.nes");
+        let mut reference_file: Vec<String> = std::fs::read_to_string("./roms/testing/cpu/nestest/nestest-try-trim.txt").unwrap().split(' ').flat_map(str::parse::<String>).collect::<Vec<_>>();
+        reference_file.reverse();
+
+        let mut cpu = CPU6502::new(cartridge, true, Some(0xC66E));
+
         cpu.registers.pc = 0x0C000;
         cpu.registers.p = 0x24;
         cpu.run();
+
+        let x = cpu.execution_trace.as_mut().unwrap();
+        x.reverse();
+
+        assert!(x.len() > 8000);
+
+        while x.len() > 0 {
+            let current = x.pop();
+            let expect = reference_file.pop();
+
+            assert_eq!(current.unwrap().trim(), expect.unwrap().trim());
+        }
     }
 }
