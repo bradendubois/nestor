@@ -7,7 +7,6 @@ use super::cartridge::Cartridge;
 use super::io::IO;
 
 use registers::Registers;
-use std::process::exit;
 
 
 pub struct CPU6502 {
