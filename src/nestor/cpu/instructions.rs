@@ -383,43 +383,43 @@ impl CPU6502 {
             ZeroPage => {
                 let (address, value) = self.zero_page();
                 let result = self.alu_asl(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 5)
             }
             ZeroPageX => {
                 let (address, value) = self.zero_page_x();
                 let result = self.alu_asl(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 6)
             }
             Absolute => {
                 let (address, value) = self.absolute();
                 let result = self.alu_asl(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 6)
             }
             AbsoluteX => {
                 let (address, value, carry) = self.absolute_x();
                 let result = self.alu_asl(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 6 + if carry { 1 } else { 0 })
             }
             AbsoluteY => {
                 let (address, value, carry) = self.absolute_y();
                 let result = self.alu_asl(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 6 + if carry { 1 } else { 0 })
             }
             IndirectX => {
                 let (address, value) = self.x_indirect();
                 let result = self.alu_asl(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 8)
             }
             IndirectY => {
                 let (address, value, _carry) = self.indirect_y();
                 let result = self.alu_asl(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 8)
             }
             _ => panic!("unsupported mode for asl : {:?}", mode)
@@ -515,7 +515,7 @@ impl CPU6502 {
         };
 
         let result = self.alu_dec(value);
-        self.io.write(address, result);
+        self.write(address, result);
         if do_cmp { self.alu_cmp(self.registers.a, result) }
         cycles
     }
@@ -594,7 +594,7 @@ impl CPU6502 {
         };
 
         let result = self.alu_inc(value);
-        self.io.write(address, result);
+        self.write(address, result);
         if do_sbc {
             self.alu_sbc(result);
         };
@@ -638,43 +638,43 @@ impl CPU6502 {
             ZeroPage => {
                 let (address, value) = self.zero_page();
                 let result = self.alu_lsr(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 5)
             }
             ZeroPageX => {
                 let (address, value) = self.zero_page_x();
                 let result = self.alu_lsr(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 6)
             }
             Absolute => {
                 let (address, value) = self.absolute();
                 let result = self.alu_lsr(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 6)
             }
             AbsoluteX => {
                 let (address, value, _carry) = self.absolute_x();
                 let result = self.alu_lsr(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 7)
             }
             AbsoluteY => {
                 let (address, value, _carry) = self.absolute_y();
                 let result = self.alu_lsr(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 7)
             }
             IndirectX => {
                 let (address, value) = self.x_indirect();
                 let result = self.alu_lsr(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 8)
             }
             IndirectY => {
                 let (address, value, _carry) = self.indirect_y();
                 let result = self.alu_lsr(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 8)
             }
             _ => panic!("unsupported mode for lsr : {:?}", mode)
@@ -740,43 +740,43 @@ impl CPU6502 {
             ZeroPage => {
                 let (address, value) = self.zero_page();
                 let result = self.alu_rol(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 5)
             }
             ZeroPageX => {
                 let (address, value) = self.zero_page_x();
                 let result = self.alu_rol(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 6)
             }
             Absolute => {
                 let (address, value) = self.absolute();
                 let result = self.alu_rol(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 6)
             }
             AbsoluteX => {
                 let (address, value, _carry) = self.absolute_x();
                 let result = self.alu_rol(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 7)
             },
             AbsoluteY => {
                 let (address, value, _carry) = self.absolute_y();
                 let result = self.alu_rol(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 7)
             }
             IndirectX => {
                 let (address, value) = self.x_indirect();
                 let result = self.alu_rol(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 8)
             }
             IndirectY => {
                 let (address, value, _carry) = self.indirect_y();
                 let result = self.alu_rol(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 8)
             }
             _ => panic!("unsupported mode for lsr : {:?}", mode)
@@ -798,43 +798,43 @@ impl CPU6502 {
             ZeroPage => {
                 let (address, value) = self.zero_page();
                 let result = self.alu_ror(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 5)
             }
             ZeroPageX => {
                 let (address, value) = self.zero_page_x();
                 let result = self.alu_ror(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 6)
             }
             Absolute => {
                 let (address, value) = self.absolute();
                 let result = self.alu_ror(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 6)
             }
             AbsoluteX => {
                 let (address, value, _carry) = self.absolute_x();
                 let result = self.alu_ror(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 7)
             }
             AbsoluteY => {
                 let (address, value, _carry) = self.absolute_y();
                 let result = self.alu_ror(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 7)
             }
             IndirectX => {
                 let (address, value) = self.x_indirect();
                 let result = self.alu_ror(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 8)
             }
             IndirectY => {
                 let (address, value, _carry) = self.indirect_y();
                 let result = self.alu_ror(value);
-                self.io.write(address, result);
+                self.write(address, result);
                 (result, 8)
             }
             _ => panic!("unsupported mode for ror : {:?}", mode)
@@ -1211,7 +1211,8 @@ impl CPU6502 {
 
     /// 0x02, 0x12, 0x22, 0x32, 0x42, 0x52, 0x62, 0x72, 0x92, 0xB2, 0xD2, 0xF2 - Freeze
     fn jam(&mut self) -> u8 {
-        std::process::exit(0);
+        self.running = false;
+        0
     }
 
     /// 0xBB - LAS: LDA/TSX operand
@@ -1299,7 +1300,7 @@ impl CPU6502 {
         };
 
         let result = self.registers.a & self.registers.x & 0x07;
-        self.io.write(address, result);
+        self.write(address, result);
         5
     }
 
@@ -1307,7 +1308,7 @@ impl CPU6502 {
     fn shx(&mut self) -> u8 {
         let (address, _value, _carry) = self.absolute_y();
         let result = self.registers.x & (address.wrapping_add(1) & 0xFF00) as u8;
-        self.io.write(address, result);
+        self.write(address, result);
         5
     }
 
@@ -1315,7 +1316,7 @@ impl CPU6502 {
     fn shy(&mut self) -> u8 {
         let (address, _value, _carry) = self.absolute_x();
         let result = self.registers.y & (address.wrapping_add(1) & 0xFF00) as u8;
-        self.io.write(address, result);
+        self.write(address, result);
         5
     }
 
@@ -1334,7 +1335,7 @@ impl CPU6502 {
         let (address, _value, _carry) = self.absolute_y();
         let result = self.registers.a & self.registers.x;
         self.registers.s = result;
-        self.io.write(address, result & (address.wrapping_add(1) & 0xFF00) as u8);
+        self.write(address, result & (address.wrapping_add(1) & 0xFF00) as u8);
         5
     }
 
@@ -1486,7 +1487,7 @@ impl CPU6502 {
             _ => panic!("unsupported mode: {:?}", mode)
         };
 
-        self.io.write(address, value);
+        self.write(address, value);
         cycles
     }
 }

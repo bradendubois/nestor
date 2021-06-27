@@ -11,28 +11,31 @@ use registers::Registers;
 
 pub struct CPU6502 {
     registers: Registers,
-    io: IO,
-
+    pub io: IO,
+    running: bool,
     pub execution_trace: Option<Vec<String>>,
     exit_code: Option<u16>,
+    trace_ram: bool
 }
 
 
 impl CPU6502 {
 
     /// Constructor for a new CPU
-    pub fn new(cartridge: Cartridge, trace: bool, exit_code: Option<u16>) -> CPU6502 {
+    pub fn new(cartridge: Cartridge, trace: bool, exit_code: Option<u16>, trace_ram: bool) -> CPU6502 {
         CPU6502 {
             registers: Registers::new(),
             io: IO::new(cartridge),
+            running: true,
             exit_code,
+            trace_ram,
             execution_trace: if trace || !exit_code.is_none() { Some(Vec::new()) } else { None }
         }
     }
 
     /// Run the CPU in an infinite loop until stopped
     pub fn run(&mut self) {
-        'core: loop {
+        'core: while self.running {
 
             self.trace_store(format!("{:04X}", self.registers.pc));
 
@@ -62,6 +65,16 @@ impl CPU6502 {
         }
     }
 
+    fn write(&mut self, address: u16, value: u8) {
+        if self.trace_ram {
+            self.execution_trace.as_mut().unwrap().push("WRITE".to_string());
+            self.execution_trace.as_mut().unwrap().push(format!("{:#06X}", address));
+            self.execution_trace.as_mut().unwrap().push(format!("{:#04X}", value));
+        }
+
+        self.io.write(address, value);
+    }
+
     /**************************/
     /*     Program Control    */
     /**************************/
@@ -70,7 +83,7 @@ impl CPU6502 {
     pub fn byte(&mut self) -> u8 {
         let result = self.io.read(self.registers.pc);
         self.registers.pc = self.registers.pc.wrapping_add(1);
-        self.trace_store(format!("{:02X} ", result));
+        self.trace_store(format!("{:02X}", result));
         result
     }
 
@@ -140,6 +153,7 @@ mod test {
 
     use crate::nestor::cpu::CPU6502;
     use crate::nestor::cartridge::Cartridge;
+    use crate::nestor::traits::MemoryMap;
 
     #[test]
     fn cpu_nestest() {
@@ -148,7 +162,7 @@ mod test {
         let mut reference_file: Vec<String> = std::fs::read_to_string("./roms/testing/cpu/nestest/nestest-expected.txt").unwrap().split(' ').flat_map(str::parse::<String>).collect::<Vec<_>>();
         reference_file.reverse();
 
-        let mut cpu = CPU6502::new(cartridge, true, Some(0xC66E));
+        let mut cpu = CPU6502::new(cartridge, true, Some(0xC66E), false);
 
         cpu.registers.pc = 0x0C000;
         cpu.registers.p = 0x24;
@@ -172,11 +186,29 @@ mod test {
 
         let cartridge = Cartridge::new("./roms/testing/cpu/instr_timing/instr_timing.nes");
 
-        let mut cpu = CPU6502::new(cartridge, true, Some(0xC66E));
+        let mut cpu = CPU6502::new(cartridge, true, None, true);
 
         cpu.registers.pc = 0x0C000;
         cpu.registers.p = 0x24;
         cpu.run();
+
+        // let trace = cpu.execution_trace.as_mut().unwrap();
+
+        let mut i: u16 = 0x6004;
+        let mut s = String::new();
+
+        loop {
+            let c = cpu.io.read(i);
+
+            if c == 0 {
+                break;
+            }
+
+            s.push(c as char);
+            i += 1;
+        }
+
+        panic!("{}", s);
     }
 }
 

@@ -18,7 +18,7 @@ impl Nestor {
         let cartridge = cartridge::Cartridge::new(rom_path);
 
         Nestor {
-            cpu: cpu::CPU6502::new(cartridge, false, None)
+            cpu: cpu::CPU6502::new(cartridge, false, None, true)
         }
     }
 

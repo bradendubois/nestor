@@ -19,6 +19,16 @@ impl Mapper for MMC1 {
 
     fn write(&mut self, address: u16, value: u8) {
         match address {
+
+            // Nothing below 0x6000
+            0x4020..=0x5FFF => (),
+
+            // RAM
+            0x6000..=0x7FFF => if self.ram_enabled {
+                self.ram[(address & 0x1FFF) as usize] = value;
+            }
+
+            // ROM
             0x8000..=0xFFFF => {
 
                 // Bit 7 set: clear
