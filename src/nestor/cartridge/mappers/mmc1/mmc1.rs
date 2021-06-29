@@ -11,7 +11,15 @@ impl Mapper for MMC1 {
                 true => self.ram[(address & 0x1FFF) as usize],
                 false => 0x00
             },
-            0x8000..=0xBFFF => self.rom[(address & 0x3FFF) as usize],
+            0x8000..=0xBFFF => match self.prg_bankmode {
+
+                0b00 => self.rom[(address & 0x3FFF) as usize],
+                0b01 => self.rom[(address & 0x3FFF) as usize],
+                0b10 => self.rom[(address & 0x3FFF) as usize],
+                0b11 => self.rom[(address & 0x3FFF) as usize],
+                
+                _ => panic!("impossible bankmode: {:#04X}", self.prg_bankmode)
+            }
             0xC000..=0xFFFF => self.rom[(address & 0x3FFF) as usize],
             _ => panic!("unmapped: {:#06X}", address)
         }
@@ -50,12 +58,25 @@ impl Mapper for MMC1 {
                     let bits_14_13 = address & 0x6000 >> 13;
 
                     match bits_14_13 {
-                        0b00 => (),
+
+                        // Control - 0x8000-0x9FFF
+                        0b00 => {
+                            self.control = result;
+                            self.mirror = result & 0b00011;
+                            self.prg_bankmode = (result & 0b01100) >> 2;
+                            self.chr_bankmode = (result & 0b10000) >> 4;
+                        },
+
+                        // CHR Bank 0
                         0b01 => self.chr_bank0 = result,
+
+                        // CHR Bank 1
                         0b10 => self.chr_bank1 = result,
+
+                        // PRG Bank
                         0b11 => {
-                            self.rom_bank = result;
                             self.ram_enabled = result & 0x10 != 0;
+                            self.rom_bank = result;
                         },
 
                         _ => panic!("unmapped: {:#06X}", address)

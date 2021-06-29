@@ -8,6 +8,12 @@ pub struct MMC1 {
     ram_enabled: bool,
     rom: Vec<u8>,
 
+    // Control
+    control: u8,
+    mirror: u8,
+    prg_bankmode: u8,
+    chr_bankmode: u8,
+
     shift_register: u8,
     shift_count: u8,
 
@@ -28,6 +34,12 @@ impl MMC1 {
             ram: std::iter::repeat(0).take(0x2000).collect(),
             ram_enabled: false,
             rom: ines.data,
+
+            // Control
+            control: 0,
+            mirror: 0,
+            prg_bankmode: 0,
+            chr_bankmode: 0,
 
             shift_register: 0,
             shift_count: 0,
