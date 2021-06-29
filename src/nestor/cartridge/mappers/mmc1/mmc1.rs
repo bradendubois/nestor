@@ -13,10 +13,16 @@ impl Mapper for MMC1 {
             },
             0x8000..=0xBFFF => match self.prg_bankmode {
 
-                0b00 => self.rom[(address & 0x3FFF) as usize],
+                0b00 => {
+                    self.rom[(address & 0x3FFF) as usize]
+                },
                 0b01 => self.rom[(address & 0x3FFF) as usize],
+
+                // 2: First bank at 0x8000
                 0b10 => self.rom[(address & 0x3FFF) as usize],
-                0b11 => self.rom[(address & 0x3FFF) as usize],
+
+                // 3: Switch 16 KB bank
+                0b11 => self.rom[0xFFFF * (address & 0x3FFF) as usize],
                 
                 _ => panic!("impossible bankmode: {:#04X}", self.prg_bankmode)
             }
