@@ -15,7 +15,8 @@ pub struct CPU6502 {
     running: bool,
     pub execution_trace: Option<Vec<String>>,
     exit_code: Option<u16>,
-    trace_ram: bool
+    trace_ram: bool,
+    clock: u64
 }
 
 
@@ -29,6 +30,7 @@ impl CPU6502 {
             running: true,
             exit_code,
             trace_ram,
+            clock: 7,
             execution_trace: if trace || !exit_code.is_none() { Some(Vec::new()) } else { None }
         }
     }
@@ -45,13 +47,14 @@ impl CPU6502 {
 
             let opcode = self.byte();
 
-            self.call(opcode);
+            self.clock += self.call(opcode) as u64;
 
             self.trace_store(format!("A:{:02X}", self.registers.a));
             self.trace_store(format!("X:{:02X}", self.registers.x));
             self.trace_store(format!("Y:{:02X}", self.registers.y));
             self.trace_store(format!("P:{:02X}", self.registers.p));
             self.trace_store(format!("SP:{:02X}", self.registers.s));
+            self.trace_store(format!("CYC:{}", self.clock));
         }
     }
 
@@ -159,7 +162,7 @@ mod test {
     fn cpu_nestest() {
 
         let cartridge = Cartridge::new("./roms/testing/cpu/nestest/nestest.nes");
-        let mut reference_file: Vec<String> = std::fs::read_to_string("./roms/testing/cpu/nestest/nestest-expected.txt").unwrap().split(' ').flat_map(str::parse::<String>).collect::<Vec<_>>();
+        let mut reference_file: Vec<String> = std::fs::read_to_string("./roms/testing/cpu/nestest/nestest-with-cyc.log").unwrap().split(' ').flat_map(str::parse::<String>).collect::<Vec<_>>();
         reference_file.reverse();
 
         let mut cpu = CPU6502::new(cartridge, true, Some(0xC66E), false);

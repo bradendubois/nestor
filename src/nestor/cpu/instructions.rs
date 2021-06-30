@@ -399,16 +399,16 @@ impl CPU6502 {
                 (result, 6)
             }
             AbsoluteX => {
-                let (address, value, carry) = self.absolute_x();
+                let (address, value, _carry) = self.absolute_x();
                 let result = self.alu_asl(value);
                 self.write(address, result);
-                (result, 6 + if carry { 1 } else { 0 })
+                (result, 7)
             }
             AbsoluteY => {
-                let (address, value, carry) = self.absolute_y();
+                let (address, value, _carry) = self.absolute_y();
                 let result = self.alu_asl(value);
                 self.write(address, result);
-                (result, 6 + if carry { 1 } else { 0 })
+                (result, 7)
             }
             IndirectX => {
                 let (address, value) = self.x_indirect();
@@ -1468,12 +1468,12 @@ impl CPU6502 {
                 (address, 4)
             }
             AbsoluteX => {
-                let (address, _value, carry) = self.absolute_x();
-                (address, 5 + if carry { 1 } else { 0 })
+                let (address, _value, _carry) = self.absolute_x();
+                (address, 5)
             }
             AbsoluteY => {
-                let (address, _value, carry) = self.absolute_y();
-                (address, 5 + if carry { 1 } else { 0 })
+                let (address, _value, _carry) = self.absolute_y();
+                (address, 5)
             }
             IndirectX => {
                 let (address, _value) = self.x_indirect();
