@@ -7,26 +7,53 @@ impl Mapper for MMC1 {
 
     fn read(&self, address: u16) -> u8 {
         match address {
+
+            0x0000..=0x0FFF => match self.chr_bankmode {
+                0 => self.rom[(0x1FFF * (self.chr_bank0 & !1) as usize) * address as usize],
+                1 => self.rom[(0x0FFF * (self.chr_bank0) as usize) * address as usize],
+
+                _ => panic!("invalid chr bank mode: {}", self.chr_bankmode)
+            }
+
+            0x1000..=0x1FFF => match self.chr_bankmode {
+                0 => self.rom[(0x1FFF * (self.chr_bank0 & !1) as usize) * address as usize],
+                1 => self.rom[(0x0FFF * (self.chr_bank1) as usize) * address as usize],
+
+                _ => panic!("invalid chr bank mode: {}", self.chr_bankmode)
+            }
+
             0x6000..=0x7FFF => match self.ram_enabled {
                 true => self.ram[(address & 0x1FFF) as usize],
                 false => 0x00
             },
             0x8000..=0xBFFF => match self.prg_bankmode {
 
-                0b00 => {
-                    self.rom[(address & 0x3FFF) as usize]
-                },
-                0b01 => self.rom[(address & 0x3FFF) as usize],
+                // 0, 1: Switch 32 KB Bank, ignore LSB of Bank Number
+                0b00 | 0b01 => self.rom[(0x8FFFF * (self.rom_bank & !1) as usize) * (address & 0x3FFF) as usize],
 
-                // 2: First bank at 0x8000
+                // 3: First bank at 0x8000
                 0b10 => self.rom[(address & 0x3FFF) as usize],
 
-                // 3: Switch 16 KB bank
-                0b11 => self.rom[0xFFFF * (address & 0x3FFF) as usize],
+                // 2: Switch 16 KB bank
+                0b11 => self.rom[(0xFFFF * self.rom_bank as usize) as usize * (address & 0x3FFF) as usize],
                 
                 _ => panic!("impossible bankmode: {:#04X}", self.prg_bankmode)
             }
-            0xC000..=0xFFFF => self.rom[(address & 0x3FFF) as usize],
+
+            0xC000..=0xFFFF => match self.prg_bankmode {
+
+                // 0, 1: Switch 32 KB Bank, ignore LSB of Bank Number
+                0b00 | 0b01 => self.rom[(0x8FFFF * (self.rom_bank & !1) as usize) * (address & 0x3FFF) as usize],
+
+                // 2: Switch 16 KB bank
+                0b10 => self.rom[(0xFFFF * self.rom_bank as usize) as usize * (address & 0x3FFF) as usize],
+
+                // 3: First bank at 0x8000
+                0b11 => self.rom[&self.rom.len() - (address & 0x3FFF) as usize],
+
+                _ => panic!("impossible bankmode: {:#04X}", self.prg_bankmode)
+            },
+
             _ => panic!("unmapped: {:#06X}", address)
         }
     }
