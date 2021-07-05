@@ -62,7 +62,7 @@ impl MemoryMap for Triangle {
             0x400B => {
                 self.r_400b = value;
                 self.length_counter = APU::length_table_lookup((value & 0xF8) >> 3);
-                self.timer_high = value;
+                self.timer_high = value & 0x07;
                 self.timer = ((self.timer_high as u16) << 8) | (self.timer_low as u16);
             },
 
