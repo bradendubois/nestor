@@ -1,4 +1,5 @@
 mod pulse;
+mod dmc;
 
 use crate::nestor::traits::{Power, MemoryMap};
 
@@ -40,7 +41,7 @@ pub struct APU {
     // Other
     control: u8,                    // 0x4015
     status: u8,                     // 0x4016
-    frame_counter: u8               // 0x4017
+    frame_counter: u8,               // 0x4017
 }
 
 impl APU {
@@ -213,13 +214,8 @@ impl MemoryMap for APU {
                 self.noise_length = APU::length_table_lookup((value & 0xF8) >> 3);
             },
 
-            0x4010 => self.dmc_irq_main = value,
-            0x4011 => self.dmc_direct = value,
-            0x4012 => self.dmc_sample_address = value,
-            0x4013 => {
-                self.dmc_sample_length_register = value;
-                self.dmc_sample_length = APU::length_table_lookup((value & 0xF8) >> 3);
-            },
+            // DMC
+            0x4010..=0x4013 => self.dmc.write(address, value),
 
             // Status
             0x4015 => {
@@ -233,7 +229,8 @@ impl MemoryMap for APU {
 
             0x4017 => {
                 self.frame_counter = value;
-                // self.mode = if value & 0x80 != 0 { ;
+                // self.mode = if value & 0x80 != 0 { 5 } else { 4 };
+                // self.irq_inhibit = value & 0x40 != 0;
             },
 
             _ => panic!("unmapped apu register: {:#06X}", address)
