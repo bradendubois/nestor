@@ -26,7 +26,7 @@ impl Cartridge {
 
 impl MemoryMap for Cartridge {
 
-    fn read(&self, address: u16) -> u8 {
+    fn read(&mut self, address: u16) -> u8 {
         self.mapper.read(address)
     }
 

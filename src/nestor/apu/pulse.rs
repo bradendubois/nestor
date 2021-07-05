@@ -1,9 +1,10 @@
 use crate::nestor::traits::MemoryMap;
 use crate::nestor::apu::APU;
 
-const     CONV: usize = 1000000;
-const NTSC_CPU: usize = 1.789773 * CONV;
-const  PAL_CPU: usize = 1.662607 * CONV;
+#[allow(dead_code)]
+const NTSC_CPU: usize = 1789773;
+#[allow(dead_code)]
+const  PAL_CPU: usize = 1662607;
 
 
 pub struct Pulse {
@@ -54,12 +55,16 @@ impl Pulse {
             timer: 0
         }
     }
+
+    pub fn set_enabled(&mut self, _enabled: bool) {
+        todo!()
+    }
 }
 
 
 impl MemoryMap for Pulse {
 
-    fn read(&self, address: u16) -> u8 {
+    fn read(&mut self, address: u16) -> u8 {
         match address % 4 {
             0 => self.r_4000,
             1 => self.r_4001,

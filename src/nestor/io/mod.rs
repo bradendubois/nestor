@@ -24,7 +24,7 @@ impl IO {
 #[allow(unreachable_patterns)]
 impl MemoryMap for IO {
 
-    fn read(&self, address: u16) -> u8 {
+    fn read(&mut self, address: u16) -> u8 {
         match address {
             0x0000..=0x07FF => self.ram[address as usize],
             0x0800..=0x1FFF => self.ram[(address & 0x07FF) as usize],

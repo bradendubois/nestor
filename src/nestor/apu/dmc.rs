@@ -38,12 +38,16 @@ impl DMC {
             interrupt: false
         }
     }
+
+    pub fn set_enabled(&mut self, _enabled: bool) {
+        todo!()
+    }
 }
 
 
 impl MemoryMap for DMC {
 
-    fn read(&self, address: u16) -> u8 {
+    fn read(&mut self, address: u16) -> u8 {
         match address {
             0x4010 => self.r_4010,
             0x4011 => self.load_counter,

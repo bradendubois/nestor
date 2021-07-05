@@ -33,12 +33,16 @@ impl Triangle {
             length_counter: 0
         }
     }
+
+    pub fn set_enabled(&mut self, _enabled: bool) {
+        todo!()
+    }
 }
 
 
 impl MemoryMap for Triangle {
 
-    fn read(&self, address: u16) -> u8 {
+    fn read(&mut self, address: u16) -> u8 {
         match address {
             0x4008 => self.r_4008,
             0x400A => self.timer_low,

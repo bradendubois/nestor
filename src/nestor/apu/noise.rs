@@ -36,12 +36,16 @@ impl Noise {
             length_counter: 0
         }
     }
+
+    pub fn set_enabled(&mut self, _enabled: bool) {
+        todo!()
+    }
 }
 
 
 impl MemoryMap for Noise {
 
-    fn read(&self, address: u16) -> u8 {
+    fn read(&mut self, address: u16) -> u8 {
         match address {
             0x400C => self.r_400c,
             0x400E => self.r_400e,
