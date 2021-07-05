@@ -138,7 +138,7 @@ impl MemoryMap for APU {
 
                 if self.pulse_1.length_counter > 0 { result |= 0x01 };
                 if self.pulse_2.length_counter > 0 { result |= 0x02 };
-                if self.noise.length_counter > 0 { result |= 0x04 };
+                if self.noise.r_400f > 0 { result |= 0x04 };
                 if self.triangle.length_counter > 0 { result |= 0x08 };
                 if self.dmc.bytes_remaining > 0 { result |= 0x10 };
                 if self.frame_interrupt {

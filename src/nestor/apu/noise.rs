@@ -16,7 +16,7 @@ pub struct Noise {
     noise_period: u8,
 
     // 0x400F
-    r_400f: u8,
+    pub r_400f: u8,
     length_counter: u8
 }
 

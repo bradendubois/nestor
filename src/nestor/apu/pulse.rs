@@ -17,7 +17,6 @@ pub struct Pulse {
     pulse_1_period_low: u8,          // 0x4002
     pulse_1_period_upper: u8,        // 0x4003
 
-
     pub length_counter: u8,
 }
 

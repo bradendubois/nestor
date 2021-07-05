@@ -1,13 +1,20 @@
 use crate::nestor::traits::MemoryMap;
+use super::APU;
+
 
 pub struct Triangle {
 
-    // Triangle Channel
-    triangle_main: u8,               // 0x4008
-    triangle_period_low: u8,         // 0x400A
-    triangle_period_upper: u8,       // 0x400B
-    triangle_length: u8,
+    // 0x4008
+    r_4008: u8,
+    length_control: bool,
+    linear_load: u8,
 
+    timer_low: u8,      // 0x400A
+    timer_high: u8,     // 0x400B(0-2)
+    timer: u16,
+
+    // 0x400B
+    r_400b: u8,
     pub length_counter: u8
 }
 
@@ -16,30 +23,47 @@ impl Triangle {
     
     pub fn new() -> Triangle {
         Triangle {
-            triangle_main: 0,
-            triangle_period_low: 0,
-            triangle_period_upper: 0,
-            triangle_length: 0,
-
+            r_4008: 0,
+            length_control: false,
+            linear_load: 0,
+            timer_low: 0,
+            timer_high: 0,
+            timer: 0,
+            r_400b: 0,
             length_counter: 0
         }
     }
 }
 
+
 impl MemoryMap for Triangle {
 
     fn read(&self, address: u16) -> u8 {
-        todo!()
+        match address {
+            0x4008 => self.r_4008,
+            0x400A => self.timer_low,
+            0x400B => self.r_400b,
+
+            _ => panic!("unimplemented Triangle register: {:#06X}", address)
+        }
     }
 
     fn write(&mut self, address: u16, value: u8) {
         match address {
-
-            0x4008 => self.triangle_main = value,
-            0x400A => self.triangle_period_low = value,
+            0x4008 => {
+                self.r_4008 = value;
+                self.length_control = value & 0x80 != 0;
+                self.linear_load = value & 0x7F;
+            }
+            0x400A => {
+                self.timer_low = value;
+                self.timer = ((self.timer_high as u16) << 8) | (self.timer_low as u16);
+            }
             0x400B => {
-                self.triangle_period_upper = value;
-                self.triangle_length = APU::length_table_lookup((value & 0xF8) >> 3);
+                self.r_400b = value;
+                self.length_counter = APU::length_table_lookup((value & 0xF8) >> 3);
+                self.timer_high = value;
+                self.timer = ((self.timer_high as u16) << 8) | (self.timer_low as u16);
             },
 
             _ => panic!("unimplemented Triangle register: {:#06X}", address)
