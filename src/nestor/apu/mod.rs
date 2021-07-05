@@ -1,5 +1,6 @@
 mod pulse;
 mod dmc;
+mod noise;
 
 use crate::nestor::traits::{Power, MemoryMap};
 
@@ -207,12 +208,8 @@ impl MemoryMap for APU {
                 self.triangle_length = APU::length_table_lookup((value & 0xF8) >> 3);
             },
 
-            0x400C => self.noise_main = value,
-            0x400E => self.noise_loop_period = value,
-            0x400F => {
-                self.noise_length_register = value;
-                self.noise_length = APU::length_table_lookup((value & 0xF8) >> 3);
-            },
+            // Noise
+            0x400C..=0x400F => self.noise.write(address, value),
 
             // DMC
             0x4010..=0x4013 => self.dmc.write(address, value),
