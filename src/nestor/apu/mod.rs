@@ -1,3 +1,5 @@
+mod pulse;
+
 use crate::nestor::traits::{Power, MemoryMap};
 
 pub struct APU {
@@ -75,7 +77,7 @@ impl APU {
 
             control: 0,
             status: 0,
-            frame_counter: 0
+            frame_counter: 0,
         }
     }
 
@@ -159,7 +161,21 @@ impl MemoryMap for APU {
     fn read(&self, address: u16) -> u8 {
         match address {
 
-            0x4015 => self.status,
+            // Status
+            0x4015 => {
+                let mut _result = 0;
+                // if self.pulse_1.length_counter > 0 { result |= 0x01 };
+                // if self.pulse_2.length_counter > 0 { result |= 0x02 };
+                // if self.noise.length_counter > 0 { result |= 0x04 };
+                // if self.triangle.length_counter > 0 { result |= 0x08 };
+                // if self.dmc.bytes_remaining > 0 { result |= 0x10 };
+                // if self.frame_interrupt {
+                //      result |= 0x40;
+                //      self.frame_interrupt = false;
+                // }
+                // if self.dmc_interrupt { result |= 0x80; }
+                0
+            },
 
             _ => 0 // panic!("unmapped apu register: {:#06X}", address)
         }
@@ -205,8 +221,20 @@ impl MemoryMap for APU {
                 self.dmc_sample_length = APU::length_table_lookup((value & 0xF8) >> 3);
             },
 
-            0x4015 => self.control = value,
-            0x4017 => self.frame_counter = value,
+            // Status
+            0x4015 => {
+                // self.pulse_1.set_enabled(value & 0x01 != 0);
+                // self.pulse_2.set_enabled(value & 0x02 != 0);
+                // self.noise.set_enabled(value & 0x04 != 0);
+                // self.triangle.set_enabled(value & 0x08 != 0);
+                // self.dmc.set_enabled(value & 0x10 != 0);
+                // self.dmc_interrupt = false;
+            },
+
+            0x4017 => {
+                self.frame_counter = value;
+                // self.mode = if value & 0x80 != 0 { ;
+            },
 
             _ => panic!("unmapped apu register: {:#06X}", address)
         }
