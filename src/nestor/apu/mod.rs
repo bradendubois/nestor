@@ -1,6 +1,7 @@
 mod pulse;
 mod dmc;
 mod noise;
+mod triangle;
 
 use crate::nestor::traits::{Power, MemoryMap};
 
@@ -163,6 +164,14 @@ impl MemoryMap for APU {
     fn read(&self, address: u16) -> u8 {
         match address {
 
+            // TODO - What happens when you read a write-only register? 0's, garbage?
+            // Channels
+            0x4000..=0x4003 => self.pulse_1.read(address),      // Pulse 1
+            0x4004..=0x4007 => self.pulse_2.read(address),      // Pulse 2
+            0x4008..=0x400B => self.triangle.read(address),     // Triangle
+            0x400C..=0x400F => self.noise.read(address),        // Noise
+            0x4010..=0x4013 => self.dmc.read(address),          // DMC
+
             // Status
             0x4015 => {
                 let mut _result = 0;
@@ -185,34 +194,13 @@ impl MemoryMap for APU {
 
     fn write(&mut self, address: u16, value: u8) {
         match address {
-            0x4000 => self.pulse_1_main = value,
-            0x4001 => self.pulse_1_sweep = value,
-            0x4002 => self.pulse_1_period_low = value,
-            0x4003 => {
-                self.pulse_1_period_upper = value;
-                self.pulse_1_length = APU::length_table_lookup((value & 0xF8) >> 3);
-            },
-            
-            0x4004 => self.pulse_2_main = value,
-            0x4005 => self.pulse_2_sweep = value,
-            0x4006 => self.pulse_2_period_low = value,
-            0x4007 => {
-                self.pulse_2_period_upper = value;
-                self.pulse_2_length = APU::length_table_lookup((value & 0xF8) >> 3);
-            },
 
-            0x4008 => self.triangle_main = value,
-            0x400A => self.triangle_period_low = value,
-            0x400B => {
-                self.triangle_period_upper = value;
-                self.triangle_length = APU::length_table_lookup((value & 0xF8) >> 3);
-            },
-
-            // Noise
-            0x400C..=0x400F => self.noise.write(address, value),
-
-            // DMC
-            0x4010..=0x4013 => self.dmc.write(address, value),
+            // Channels
+            0x4000..=0x4003 => self.pulse_1.write(address, value),      // Pulse 1
+            0x4004..=0x4007 => self.pulse_2.write(address, value),      // Pulse 2
+            0x4008..=0x400B => self.triangle.write(address, value),     // Triangle
+            0x400C..=0x400F => self.noise.write(address, value),        // Noise
+            0x4010..=0x4013 => self.dmc.write(address, value),          // DMC
 
             // Status
             0x4015 => {
@@ -224,6 +212,7 @@ impl MemoryMap for APU {
                 // self.dmc_interrupt = false;
             },
 
+            // Frame Counter
             0x4017 => {
                 self.frame_counter = value;
                 // self.mode = if value & 0x80 != 0 { 5 } else { 4 };
