@@ -1,86 +1,46 @@
-mod pulse;
 mod dmc;
 mod noise;
+mod pulse;
 mod triangle;
 
 use crate::nestor::traits::{Power, MemoryMap};
 
+use dmc::DMC;
+use noise::Noise;
+use pulse::Pulse;
+use triangle::Triangle;
+
+
 pub struct APU {
+    pulse_1: Pulse,
+    pulse_2: Pulse,
+    triangle: Triangle,
+    noise: Noise,
+    dmc: DMC,
 
-    // Pulse 1 Channel
-    pulse_1_main: u8,                // 0x4000
-    pulse_1_sweep: u8,               // 0x4001
-    pulse_1_period_low: u8,          // 0x4002
-    pulse_1_period_upper: u8,        // 0x4003
-    pulse_1_length: u8,
+    frame_interrupt: bool,
 
-    // Pulse 2 Channel
-    pulse_2_main: u8,                // 0x4004
-    pulse_2_sweep: u8,               // 0x4005
-    pulse_2_period_low: u8,          // 0x4006
-    pulse_2_period_upper: u8,        // 0x4007
-    pulse_2_length: u8,
-
-    // Triangle Channel
-    triangle_main: u8,               // 0x4008
-    triangle_period_low: u8,         // 0x400A
-    triangle_period_upper: u8,       // 0x400B
-    triangle_length: u8,
-
-    // Noise Channel
-    noise_main: u8,                 // 0x400C
-    noise_loop_period: u8,          // 0x400E
-    noise_length_register: u8,      // 0x400F
-    noise_length: u8,
-
-    // DMC Channel
-    dmc_irq_main: u8,               // 0x4010
-    dmc_direct: u8,                 // 0x4011
-    dmc_sample_address: u8,         // 0x4012
-    dmc_sample_length_register: u8, // 0x4013
-    dmc_sample_length: u8,
-
-    // Other
-    control: u8,                    // 0x4015
-    status: u8,                     // 0x4016
-    frame_counter: u8,               // 0x4017
+    frame_counter: u8,
+    mode: u8,
+    irq_inhibit: bool,
 }
+
 
 impl APU {
 
     pub fn new() -> APU {
         APU {
-            pulse_1_main: 0,
-            pulse_1_sweep: 0,
-            pulse_1_period_low: 0,
-            pulse_1_period_upper: 0,
-            pulse_1_length: 0,
-            
-            pulse_2_main: 0,
-            pulse_2_sweep: 0,
-            pulse_2_period_low: 0,
-            pulse_2_period_upper: 0,
-            pulse_2_length: 0,
+            pulse_1: Pulse::new(),
+            pulse_2: Pulse::new(),
+            triangle: Triangle::new(),
+            noise: Noise::new(),
+            dmc: DMC::new(),
 
-            triangle_main: 0,
-            triangle_period_low: 0,
-            triangle_period_upper: 0,
-            triangle_length: 0,
+            frame_interrupt: false,
 
-            noise_main: 0,
-            noise_loop_period: 0,
-            noise_length_register: 0,
-            noise_length: 0,
-            
-            dmc_irq_main: 0,
-            dmc_direct: 0,
-            dmc_sample_address: 0,
-            dmc_sample_length_register: 0,
-            dmc_sample_length: 0,
-
-            control: 0,
-            status: 0,
             frame_counter: 0,
+            mode: 0,
+            irq_inhibit: false
         }
     }
 
@@ -161,7 +121,7 @@ impl Power for APU {
 
 impl MemoryMap for APU {
 
-    fn read(&self, address: u16) -> u8 {
+    fn read(&mut self, address: u16) -> u8 {
         match address {
 
             // TODO - What happens when you read a write-only register? 0's, garbage?
@@ -174,19 +134,23 @@ impl MemoryMap for APU {
 
             // Status
             0x4015 => {
-                let mut _result = 0;
-                // if self.pulse_1.length_counter > 0 { result |= 0x01 };
-                // if self.pulse_2.length_counter > 0 { result |= 0x02 };
-                // if self.noise.length_counter > 0 { result |= 0x04 };
-                // if self.triangle.length_counter > 0 { result |= 0x08 };
-                // if self.dmc.bytes_remaining > 0 { result |= 0x10 };
-                // if self.frame_interrupt {
-                //      result |= 0x40;
-                //      self.frame_interrupt = false;
-                // }
-                // if self.dmc_interrupt { result |= 0x80; }
-                0
-            },
+                let mut result = 0;
+
+                if self.pulse_1.length_counter > 0 { result |= 0x01 };
+                if self.pulse_2.length_counter > 0 { result |= 0x02 };
+                if self.noise.length_counter > 0 { result |= 0x04 };
+                if self.triangle.length_counter > 0 { result |= 0x08 };
+                if self.dmc.bytes_remaining > 0 { result |= 0x10 };
+                if self.frame_interrupt {
+                     result |= 0x40;
+                     self.frame_interrupt = false;
+                }
+                if self.dmc.interrupt { result |= 0x80; }
+
+                result
+            }
+
+            0x4017 => self.frame_counter,
 
             _ => 0 // panic!("unmapped apu register: {:#06X}", address)
         }
@@ -204,19 +168,19 @@ impl MemoryMap for APU {
 
             // Status
             0x4015 => {
-                // self.pulse_1.set_enabled(value & 0x01 != 0);
-                // self.pulse_2.set_enabled(value & 0x02 != 0);
-                // self.noise.set_enabled(value & 0x04 != 0);
-                // self.triangle.set_enabled(value & 0x08 != 0);
-                // self.dmc.set_enabled(value & 0x10 != 0);
-                // self.dmc_interrupt = false;
+                self.pulse_1.set_enabled(value & 0x01 != 0);
+                self.pulse_2.set_enabled(value & 0x02 != 0);
+                self.noise.set_enabled(value & 0x04 != 0);
+                self.triangle.set_enabled(value & 0x08 != 0);
+                self.dmc.set_enabled(value & 0x10 != 0);
+                self.dmc.interrupt = false;
             },
 
             // Frame Counter
             0x4017 => {
-                self.frame_counter = value;
-                // self.mode = if value & 0x80 != 0 { 5 } else { 4 };
-                // self.irq_inhibit = value & 0x40 != 0;
+                self.frame_counter = value & 0xC0;
+                self.mode = if value & 0x80 != 0 { 5 } else { 4 };
+                self.irq_inhibit = value & 0x40 != 0;
             },
 
             _ => panic!("unmapped apu register: {:#06X}", address)

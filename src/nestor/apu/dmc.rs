@@ -2,11 +2,31 @@ use crate::nestor::traits::MemoryMap;
 
 pub struct DMC {
 
+    // DMC Channel
+    dmc_irq_main: u8,               // 0x4010
+    dmc_direct: u8,                 // 0x4011
+    dmc_sample_address: u8,         // 0x4012
+    dmc_sample_length_register: u8, // 0x4013
+    dmc_sample_length: u8,
+
+    pub bytes_remaining: u8,
+    pub interrupt: bool,
 }
 
 impl DMC {
 
+    pub fn new() -> DMC {
+        DMC {
+            dmc_irq_main: 0,
+            dmc_direct: 0,
+            dmc_sample_address: 0,
+            dmc_sample_length_register: 0,
+            dmc_sample_length: 0,
 
+            bytes_remaining: 0,
+            interrupt: false
+        }
+    }
 }
 
 

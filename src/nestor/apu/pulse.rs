@@ -5,16 +5,43 @@ const NTSC_CPU: usize = 1.789773 * CONV;
 const  PAL_CPU: usize = 1.662607 * CONV;
 
 
-pub struct Channel {
+pub struct Pulse {
     pub duty: u8,
     pub halt: bool,
     pub constant_flag: bool,
     pub volume: u8,
-    pub length: u8
+    pub length: u8,
+
+    pulse_1_main: u8,                // 0x4000
+    pulse_1_sweep: u8,               // 0x4001
+    pulse_1_period_low: u8,          // 0x4002
+    pulse_1_period_upper: u8,        // 0x4003
+
+
+    pub length_counter: u8,
 }
 
 
-impl MemoryMap for Channel {
+impl Pulse {
+    
+    pub fn new() -> Pulse {
+        Pulse {
+            duty: 0,
+            halt: false,
+            constant_flag: false,
+            volume: 0,
+            length: 0,
+            pulse_1_main: 0,
+            pulse_1_sweep: 0,
+            pulse_1_period_low: 0,
+            pulse_1_period_upper: 0,
+            length_counter: 0
+        }
+    }
+}
+
+
+impl MemoryMap for Pulse {
 
     fn read(&self, address: u16) -> u8 {
         match address % 4 {

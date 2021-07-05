@@ -2,6 +2,28 @@ use crate::nestor::traits::MemoryMap;
 
 pub struct Triangle {
 
+    // Triangle Channel
+    triangle_main: u8,               // 0x4008
+    triangle_period_low: u8,         // 0x400A
+    triangle_period_upper: u8,       // 0x400B
+    triangle_length: u8,
+
+    pub length_counter: u8
+}
+
+
+impl Triangle {
+    
+    pub fn new() -> Triangle {
+        Triangle {
+            triangle_main: 0,
+            triangle_period_low: 0,
+            triangle_period_upper: 0,
+            triangle_length: 0,
+
+            length_counter: 0
+        }
+    }
 }
 
 impl MemoryMap for Triangle {

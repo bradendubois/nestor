@@ -1,9 +1,18 @@
 use crate::nestor::traits::MemoryMap;
 
 pub struct Noise {
-
+    pub length_counter: u8
 }
 
+
+impl Noise {
+
+    pub fn new() -> Noise {
+        Noise {
+            length_counter: 0
+        }
+    }
+}
 
 impl MemoryMap for Noise {
 
