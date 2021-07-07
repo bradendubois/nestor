@@ -11,24 +11,24 @@ pub struct Pulse {
 
     // 0x400{0,4}
     r_4000: u8,
-    duty: u8,
-    halt: bool,
-    constant_flag: bool,
-    volume: u8,
+    duty: u8,               // Bit 7-6
+    halt: bool,             // Bit 5
+    constant_flag: bool,    // Bit 4
+    volume: u8,             // Bit 3-0
 
     // 0x400{1,5}
     r_4001: u8,
-    enabled: bool,
-    period: u8,
-    negate: bool,
-    shift: u8,
+    sweep_enabled: bool,    // Bit 7
+    period: u8,             // Bit 6-4
+    negate: bool,           // Bit 3
+    shift: u8,              // Bit 2-0
 
     timer_low: u8,  // 0x400{2,6}
 
     // 0x400{3,7}
     r_4003: u8,
-    pub length_counter: u8,
-    timer_high: u8,
+    pub length_counter: u8, // Bit 7-3
+    timer_high: u8,         // Bit 2-0
 
     timer: u16
 }
@@ -44,7 +44,7 @@ impl Pulse {
             constant_flag: false,
             volume: 0,
             r_4001: 0,
-            enabled: false,
+            sweep_enabled: false,
             period: 0,
             negate: false,
             shift: 0,
@@ -86,7 +86,7 @@ impl MemoryMap for Pulse {
             }
             1 => {
                 self.r_4001 = value;
-                self.enabled = value & 0x80 != 0;
+                self.sweep_enabled = value & 0x80 != 0;
                 self.period = (value & 0x70) >> 4;
                 self.negate = value & 0x08 != 0;
                 self.shift = value & 0x07;

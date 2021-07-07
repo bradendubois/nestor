@@ -6,18 +6,18 @@ pub struct Noise {
 
     // 0x400C
     r_400c: u8,
-    envelop_halt: bool,
-    constant_volume: bool,
-    volume: u8,
+    envelop_halt: bool,         // Bit 5
+    constant_volume: bool,      // Bit 4
+    volume: u8,                 // Bit 3-0
 
     // 0x400E
     r_400e: u8,
-    loop_noise: bool,
-    noise_period: u8,
+    loop_noise: bool,           // Bit 7
+    noise_period: u8,           // Bit 3-0
 
     // 0x400F
-    pub r_400f: u8,
-    length_counter: u8
+    r_400f: u8,
+    pub length_counter: u8          // Bit 7-3
 }
 
 

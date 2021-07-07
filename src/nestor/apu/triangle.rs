@@ -6,16 +6,17 @@ pub struct Triangle {
 
     // 0x4008
     r_4008: u8,
-    length_control: bool,
-    linear_load: u8,
+    length_control: bool,   // Bit 7
+    linear_load: u8,        // Bit 6-0
 
-    timer_low: u8,      // 0x400A
-    timer_high: u8,     // 0x400B(0-2)
-    timer: u16,
+    timer_low: u8,          // 0x400A
 
     // 0x400B
     r_400b: u8,
-    pub length_counter: u8
+    pub length_counter: u8, // Bit 7-3
+    timer_high: u8,         // Bit 2-0
+
+    timer: u16
 }
 
 

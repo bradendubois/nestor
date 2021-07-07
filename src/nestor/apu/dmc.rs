@@ -7,9 +7,9 @@ pub struct DMC {
 
     // 0x4010
     r_4010: u8,
-    irq_enable: bool,
-    loop_enable: bool,
-    frequency: u8,
+    irq_enable: bool,       // Bit 7
+    loop_enable: bool,      // Bit 6
+    frequency: u8,          // Bit 3-0
 
     load_counter: u8,       // 0x4011
     sample_address: u8,     // 0x4012
