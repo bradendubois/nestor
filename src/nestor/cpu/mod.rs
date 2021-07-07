@@ -45,9 +45,7 @@ impl CPU6502 {
                 break 'core
             }
 
-            let opcode = self.byte();
-
-            self.clock += self.call(opcode) as u64;
+            self.cycle();
 
             self.trace_store(format!("A:{:02X}", self.registers.a));
             self.trace_store(format!("X:{:02X}", self.registers.x));
@@ -56,6 +54,13 @@ impl CPU6502 {
             self.trace_store(format!("SP:{:02X}", self.registers.s));
             self.trace_store(format!("CYC:{}", self.clock));
         }
+    }
+
+    pub fn cycle(&mut self) -> u64 {
+        let opcode = self.byte();
+        let cycles = self.call(opcode) as u64;
+        self.clock += cycles;
+        cycles
     }
 
     fn trace_store(&mut self, message: String) {
@@ -77,6 +82,37 @@ impl CPU6502 {
 
         self.io.write(address, value);
     }
+}
+
+
+impl Power for CPU6502 {
+
+    /// POWER - Initializes system state to normal values
+    fn power_up(&mut self) {
+
+        self.registers.power_up();
+
+        for address in 0x4000..=0x4013 {
+            self.io.write(address, 0x00);
+        }
+
+        self.io.write(0x4015, 0x00);
+        self.io.write(0x4017, 0x00);
+    }
+
+
+    /// RESET - Adjusts the CPU (and registers) if a system reset occurs
+    fn reset(&mut self) {
+
+        self.registers.reset();
+
+        self.io.write(0x4017, 0x00);
+    }
+}
+
+
+/// Program Control / Stack
+impl CPU6502 {
 
     /**************************/
     /*     Program Control    */
@@ -125,97 +161,7 @@ impl CPU6502 {
 }
 
 
-impl Power for CPU6502 {
-
-    /// POWER - Initializes system state to normal values
-    fn power_up(&mut self) {
-
-        self.registers.power_up();
-
-        for address in 0x4000..=0x4013 {
-            self.io.write(address, 0x00);
-        }
-
-        self.io.write(0x4015, 0x00);
-        self.io.write(0x4017, 0x00);
-    }
-
-
-    /// RESET - Adjusts the CPU (and registers) if a system reset occurs
-    fn reset(&mut self) {
-
-        self.registers.reset();
-
-        self.io.write(0x4017, 0x00);
-    }
-}
-
-
-#[cfg(test)]
-mod test {
-
-    use crate::nestor::cpu::CPU6502;
-    use crate::nestor::cartridge::Cartridge;
-    use crate::nestor::traits::MemoryMap;
-
-    #[test]
-    fn cpu_nestest() {
-
-        let cartridge = Cartridge::new("./roms/testing/cpu/nestest/nestest.nes");
-        let mut reference_file: Vec<String> = std::fs::read_to_string("./roms/testing/cpu/nestest/nestest-with-cyc.log").unwrap().split(' ').flat_map(str::parse::<String>).collect::<Vec<_>>();
-        reference_file.reverse();
-
-        let mut cpu = CPU6502::new(cartridge, true, Some(0xC66E), false);
-
-        cpu.registers.pc = 0x0C000;
-        cpu.registers.p = 0x24;
-        cpu.run();
-
-        let x = cpu.execution_trace.as_mut().unwrap();
-        x.reverse();
-
-        assert!(x.len() > 8000);
-
-        while reference_file.len() > 0 {
-            let current = x.pop();
-            let expect = reference_file.pop();
-
-            assert_eq!(current.unwrap().trim(), expect.unwrap().trim());
-        }
-    }
-
-    #[test]
-    fn cpu_instr_timing() {
-
-        let cartridge = Cartridge::new("./roms/testing/cpu/instr_timing/instr_timing.nes");
-
-        let mut cpu = CPU6502::new(cartridge, true, None, true);
-
-        cpu.registers.pc = 0x0C000;
-        cpu.registers.p = 0x24;
-        cpu.run();
-
-        // let trace = cpu.execution_trace.as_mut().unwrap();
-
-        let mut i: u16 = 0x6004;
-        let mut s = String::new();
-
-        loop {
-            let c = cpu.io.read(i);
-
-            if c == 0 {
-                break;
-            }
-
-            s.push(c as char);
-            i += 1;
-        }
-
-        panic!("{}", s);
-    }
-}
-
-
+/// ALU Operations
 impl CPU6502 {
 
     /**************************/
@@ -341,6 +287,8 @@ impl CPU6502 {
 
 }
 
+
+/// Addressing Modes
 impl CPU6502 {
 
     /**************************/
@@ -434,3 +382,69 @@ impl CPU6502 {
         ((upper as u16) << 8) | (lower as u16)
     }
 }
+
+
+#[cfg(test)]
+mod test {
+
+    use crate::nestor::cpu::CPU6502;
+    use crate::nestor::cartridge::Cartridge;
+    use crate::nestor::traits::MemoryMap;
+
+    #[test]
+    fn cpu_nestest() {
+
+        let cartridge = Cartridge::new("./roms/testing/cpu/nestest/nestest.nes");
+        let mut reference_file: Vec<String> = std::fs::read_to_string("./roms/testing/cpu/nestest/nestest-with-cyc.log").unwrap().split(' ').flat_map(str::parse::<String>).collect::<Vec<_>>();
+        reference_file.reverse();
+
+        let mut cpu = CPU6502::new(cartridge, true, Some(0xC66E), false);
+
+        cpu.registers.pc = 0x0C000;
+        cpu.registers.p = 0x24;
+        cpu.run();
+
+        let x = cpu.execution_trace.as_mut().unwrap();
+        x.reverse();
+
+        assert!(x.len() > 8000);
+
+        while reference_file.len() > 0 {
+            let current = x.pop();
+            let expect = reference_file.pop();
+
+            assert_eq!(current.unwrap().trim(), expect.unwrap().trim());
+        }
+    }
+
+    #[test]
+    fn cpu_instr_timing() {
+
+        let cartridge = Cartridge::new("./roms/testing/cpu/instr_timing/instr_timing.nes");
+
+        let mut cpu = CPU6502::new(cartridge, true, None, true);
+
+        cpu.registers.pc = 0x0C000;
+        cpu.registers.p = 0x24;
+        cpu.run();
+
+        // let trace = cpu.execution_trace.as_mut().unwrap();
+
+        let mut i: u16 = 0x6004;
+        let mut s = String::new();
+
+        loop {
+            let c = cpu.io.read(i);
+
+            if c == 0 {
+                break;
+            }
+
+            s.push(c as char);
+            i += 1;
+        }
+
+        panic!("{}", s);
+    }
+}
+
