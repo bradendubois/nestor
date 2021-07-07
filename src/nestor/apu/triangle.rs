@@ -6,7 +6,7 @@ pub struct Triangle {
 
     // 0x4008
     r_4008: u8,
-    length_control: bool,   // Bit 7
+    halt: bool,             // Bit 7
     linear_load: u8,        // Bit 6-0
 
     timer_low: u8,          // 0x400A
@@ -16,7 +16,8 @@ pub struct Triangle {
     pub length_counter: u8, // Bit 7-3
     timer_high: u8,         // Bit 2-0
 
-    timer: u16
+    timer: u16,
+    silence: bool
 }
 
 
@@ -25,13 +26,14 @@ impl Triangle {
     pub fn new() -> Triangle {
         Triangle {
             r_4008: 0,
-            length_control: false,
+            halt: false,
             linear_load: 0,
             timer_low: 0,
             timer_high: 0,
-            timer: 0,
             r_400b: 0,
-            length_counter: 0
+            length_counter: 0,
+            timer: 0,
+            silence: true
         }
     }
 
@@ -44,6 +46,16 @@ impl Triangle {
 
     #[allow(dead_code)]
     pub fn envelope_tick(&mut self) { todo!() }
+
+    /// Length Counter unit
+    pub fn length_counter_tick(&mut self) {
+        if !self.halt && self.length_counter > 0 {
+            self.length_counter -= 1;
+            if self.length_counter == 0 {
+                self.silence = true;
+            }
+        }
+    }
 }
 
 
@@ -63,7 +75,7 @@ impl MemoryMap for Triangle {
         match address {
             0x4008 => {
                 self.r_4008 = value;
-                self.length_control = value & 0x80 != 0;
+                self.halt = value & 0x80 != 0;
                 self.linear_load = value & 0x7F;
             }
             0x400A => {

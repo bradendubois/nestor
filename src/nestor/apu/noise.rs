@@ -17,7 +17,9 @@ pub struct Noise {
 
     // 0x400F
     r_400f: u8,
-    pub length_counter: u8          // Bit 7-3
+    pub length_counter: u8,     // Bit 7-3
+
+    silence: bool
 }
 
 
@@ -33,7 +35,8 @@ impl Noise {
             loop_noise: false,
             noise_period: 0,
             r_400f: 0,
-            length_counter: 0
+            length_counter: 0,
+            silence: true
         }
     }
 
@@ -46,6 +49,15 @@ impl Noise {
 
     #[allow(dead_code)]
     pub fn envelope_tick(&mut self) { todo!() }
+
+    /// Length Counter unit
+    pub fn length_counter_tick(&mut self) {
+        if self.length_counter != 0 {
+            self.length_counter -= 1;
+        } else {
+            self.silence = true;
+        }
+    }
 }
 
 

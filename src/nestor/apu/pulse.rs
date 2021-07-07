@@ -88,10 +88,14 @@ impl Pulse {
     #[allow(dead_code)]
     pub fn envelope_tick(&mut self) { todo!() }
 
-
+    /// Length Counter unit
     pub fn length_counter_tick(&mut self) {
-        if self.length_counter != 0 && !self.halt {
-            self.length_counter -= 1;
+        if !self.halt {
+            if self.length_counter != 0 {
+                self.length_counter -= 1;
+            } else {
+                self.silence = true;
+            }
         }
     }
 }
