@@ -19,6 +19,7 @@ pub struct APU {
     dmc: DMC,
 
     frame_interrupt: bool,
+    step: u8,
 
     frame_counter: u8,
     mode: u8,
@@ -37,6 +38,7 @@ impl APU {
             dmc: DMC::new(),
 
             frame_interrupt: false,
+            step: 0,
 
             frame_counter: 0,
             mode: 0,
@@ -83,6 +85,65 @@ impl APU {
             0x1F => 30,
 
             _ => panic!("impossible length value: {:#04X}", value)
+        }
+    }
+
+
+    #[allow(dead_code)]
+    pub fn tick(&mut self) {
+
+        self.step += 1;
+
+        match self.mode {
+
+            // 4-Step Sequence
+            0 => {
+
+                // IRQ Interrupt at end of sequence
+                if self.step == 4 && !self.irq_inhibit { self.frame_interrupt = true; }
+
+                // Length counter and sweep
+                if self.step % 2 == 0 {
+                    self.pulse_1.length_sweep_tick();
+                    self.pulse_2.length_sweep_tick();
+                    self.triangle.length_sweep_tick();
+                    self.noise.length_sweep_tick();
+                }
+
+                // Envelope and linear counter
+                {
+                    self.pulse_1.envelope_tick();
+                    self.pulse_2.envelope_tick();
+                    self.triangle.envelope_tick();
+                    self.noise.envelope_tick();
+                }
+
+                self.mode %= 4;
+            }
+
+            // 5-Step Sequence
+            1 => {
+
+                // Length counter and sweep
+                if self.step == 2 || self.step == 5 {
+                    self.pulse_1.length_sweep_tick();
+                    self.pulse_2.length_sweep_tick();
+                    self.triangle.length_sweep_tick();
+                    self.noise.length_sweep_tick();
+                }
+
+                // Envelope and linear counter
+                if self.step != 4 {
+                    self.pulse_1.envelope_tick();
+                    self.pulse_2.envelope_tick();
+                    self.triangle.envelope_tick();
+                    self.noise.envelope_tick();
+                }
+
+                self.mode %= 5;
+            }
+
+            _ => panic!("impossible apu frame counter: {}", self.mode)
         }
     }
 }
@@ -179,7 +240,7 @@ impl MemoryMap for APU {
             // Frame Counter
             0x4017 => {
                 self.frame_counter = value & 0xC0;
-                self.mode = if value & 0x80 != 0 { 5 } else { 4 };
+                self.mode = (value & 0x80) >> 7;
                 self.irq_inhibit = value & 0x40 != 0;
             },
 

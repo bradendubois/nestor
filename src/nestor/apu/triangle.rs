@@ -38,6 +38,12 @@ impl Triangle {
     pub fn set_enabled(&mut self, _enabled: bool) {
         todo!()
     }
+
+    #[allow(dead_code)]
+    pub fn length_sweep_tick(&mut self) { todo!() }
+
+    #[allow(dead_code)]
+    pub fn envelope_tick(&mut self) { todo!() }
 }
 
 
