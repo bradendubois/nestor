@@ -9,8 +9,11 @@ mod enums;
 mod apu;
 
 
+#[allow(dead_code)]
 const MASTER_CLOCK: f64 = 236.25 / 11.0;
-const MASTER_TO_60: f64 = MASTER_CLOCK / 60;
+
+#[allow(dead_code)]
+const MASTER_TO_60: f64 = MASTER_CLOCK / 60.0;
 
 
 pub struct Nestor {
@@ -44,11 +47,11 @@ impl Nestor {
 
             // Master Clock : PPU Clock = 4:1
             // self.ppu.tick(cycles / 4);
-
-            if self.master as f64 > MASTER_TO_60 {
-                self.master %= MASTER_TO_60;
-                self.apu.tick();
-            }
+            //
+            // if self.master as f64 > MASTER_TO_60 {
+            //     self.master %= MASTER_TO_60 as u64;
+            //     self.apu.tick();
+            // }
         }
     }
 }

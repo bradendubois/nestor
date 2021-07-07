@@ -7,6 +7,14 @@ const NTSC_CPU: usize = 1789773;
 const  PAL_CPU: usize = 1662607;
 
 
+const DUTY_CYCLE_SEQUENCES: [[bool; 8]; 4] = [
+    [false,  true, false, false, false, false, false, false],
+    [false,  true,  true, false, false, false, false, false],
+    [false,  true,  true,  true,  true, false, false, false],
+    [ true, false, false,  true,  true,  true,  true,  true],
+];
+
+
 pub struct Pulse {
 
     // 0x400{0,4}
@@ -30,7 +38,9 @@ pub struct Pulse {
     pub length_counter: u8, // Bit 7-3
     timer_high: u8,         // Bit 2-0
 
-    timer: u16
+    timer: usize,
+    silence: bool,
+    frequency: usize
 }
 
 
@@ -52,19 +62,38 @@ impl Pulse {
             r_4003: 0,
             length_counter: 0,
             timer_high: 0,
-            timer: 0
+
+            timer: 0,
+            silence: true,
+            frequency: 0
         }
     }
 
-    pub fn set_enabled(&mut self, _enabled: bool) {
-        todo!()
+    pub fn set_enabled(&mut self, enabled: bool) {
+        if !enabled {
+            self.length_counter = 0;
+            self.silence = true;
+        }
+    }
+
+    fn update_frequency(&mut self) {
+        self.timer = ((self.timer_high as usize) << 8) | (self.timer_low as usize);
+        self.silence = self.timer < 8;
+        self.frequency = NTSC_CPU / (16 * (self.timer + 1));
     }
 
     #[allow(dead_code)]
-    pub fn length_sweep_tick(&mut self) { todo!() }
+    pub fn length_sweep_tick(&mut self) { }
 
     #[allow(dead_code)]
     pub fn envelope_tick(&mut self) { todo!() }
+
+
+    pub fn length_counter_tick(&mut self) {
+        if self.length_counter != 0 && !self.halt {
+            self.length_counter -= 1;
+        }
+    }
 }
 
 
@@ -99,13 +128,13 @@ impl MemoryMap for Pulse {
             }
             2 => {
                 self.timer_low = value;
-                self.timer = ((self.timer_high as u16) << 8) | (self.timer_low as u16);
+                self.update_frequency();
             }
             3 => {
                 self.r_4003 = value;
                 self.timer_high = value & 0x07;
-                self.timer = ((self.timer_high as u16) << 8) | (self.timer_low as u16);
                 self.length_counter = APU::length_table_lookup((value & 0xF8) >> 3);
+                self.update_frequency();
             }
 
             _ => panic!("unimplemented Pulse register: {:#06X}", address)
