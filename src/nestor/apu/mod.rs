@@ -9,6 +9,7 @@ use dmc::DMC;
 use noise::Noise;
 use pulse::Pulse;
 use triangle::Triangle;
+use crate::nestor::apu::pulse::PulseChannel;
 
 
 pub struct APU {
@@ -31,8 +32,8 @@ impl APU {
 
     pub fn new() -> APU {
         APU {
-            pulse_1: Pulse::new(),
-            pulse_2: Pulse::new(),
+            pulse_1: Pulse::new(PulseChannel::Pulse1),
+            pulse_2: Pulse::new(PulseChannel::Pulse2),
             triangle: Triangle::new(),
             noise: Noise::new(),
             dmc: DMC::new(),

@@ -1,12 +1,18 @@
 use crate::nestor::traits::MemoryMap;
 use crate::nestor::apu::APU;
 
+pub enum PulseChannel {
+    Pulse1,
+    Pulse2
+}
+
 #[allow(dead_code)]
 const NTSC_CPU: usize = 1789773;
+
 #[allow(dead_code)]
 const  PAL_CPU: usize = 1662607;
 
-
+#[allow(dead_code)]
 const DUTY_CYCLE_SEQUENCES: [[bool; 8]; 4] = [
     [false,  true, false, false, false, false, false, false],
     [false,  true,  true, false, false, false, false, false],
@@ -40,13 +46,15 @@ pub struct Pulse {
 
     timer: usize,
     silence: bool,
-    frequency: usize
+    frequency: usize,
+
+    channel: PulseChannel
 }
 
 
 impl Pulse {
     
-    pub fn new() -> Pulse {
+    pub fn new(channel: PulseChannel) -> Pulse {
         Pulse {
             r_4000: 0,
             duty: 0,
@@ -65,7 +73,9 @@ impl Pulse {
 
             timer: 0,
             silence: true,
-            frequency: 0
+            frequency: 0,
+
+            channel
         }
     }
 
@@ -97,6 +107,28 @@ impl Pulse {
                 self.silence = true;
             }
         }
+    }
+
+    /// Sweep Unit Tick
+    pub fn sweep_tick(&mut self) {
+
+        let mut change = (self.timer >> self.shift) as isize;
+
+        if self.negate {
+            change = match self.channel {
+                PulseChannel::Pulse1 => change * -1 -1,
+                PulseChannel::Pulse2 => change * -1
+            };
+        }
+
+        // Change timer: <= 0 == 0, still hold only 11 bits
+        self.timer = (match self.timer as isize > change.abs() {
+            true => (self.timer as isize) + change,
+            false => 0
+        } as usize) & 0x7F;
+        self.timer_low = (self.timer & 0xFF) as u8;
+        self.timer_high = (self.timer >> 8) as u8;
+        self.r_4003 = (self.r_4003 & 0xF8) | self.timer_high;
     }
 }
 
