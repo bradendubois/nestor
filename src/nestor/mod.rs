@@ -1,5 +1,6 @@
+#![allow(dead_code)]
+
 use crate::nestor::traits::{Power};
-use std::time::Duration;
 
 mod cartridge;
 mod cpu;
@@ -29,12 +30,13 @@ impl Nestor {
 
         Nestor {
             master: 0,
-            cpu: cpu::CPU6502::new(cartridge, false, None, true)
+            cpu: cpu::CPU6502::new(cartridge)
         }
     }
 
     pub fn run(&mut self) {
 
+        #[allow(unused_labels)]
         'core: loop {
 
             // Use CPU as a 'base' by which to advance the clock
