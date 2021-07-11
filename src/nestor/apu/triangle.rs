@@ -17,6 +17,7 @@ pub struct Triangle {
     timer_high: u8,         // Bit 2-0
 
     timer: u16,
+    enabled: bool,
     silence: bool
 }
 
@@ -32,13 +33,15 @@ impl Triangle {
             timer_high: 0,
             r_400b: 0,
             length_counter: 0,
+
             timer: 0,
+            enabled: false,
             silence: true
         }
     }
 
-    pub fn set_enabled(&mut self, _enabled: bool) {
-        todo!()
+    pub fn set_enabled(&mut self, enabled: bool) {
+        self.enabled = enabled;
     }
 
     #[allow(dead_code)]

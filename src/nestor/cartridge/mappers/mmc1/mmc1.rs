@@ -25,7 +25,8 @@ impl Mapper for MMC1 {
             0x6000..=0x7FFF => match self.ram_enabled {
                 true => self.ram[(address & 0x1FFF) as usize],
                 false => 0x00
-            },
+            }
+
             0x8000..=0xBFFF => match self.prg_bankmode {
 
                 // 0, 1: Switch 32 KB Bank, ignore LSB of Bank Number
@@ -74,6 +75,7 @@ impl Mapper for MMC1 {
 
                 // Bit 7 set: clear
                 if value & 0x80 != 0 {
+                    self.control &= 0x0C;
                     self.shift_register = 0;
                     self.shift_count = 0;
                     return

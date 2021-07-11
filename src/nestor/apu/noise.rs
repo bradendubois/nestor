@@ -19,6 +19,7 @@ pub struct Noise {
     r_400f: u8,
     pub length_counter: u8,     // Bit 7-3
 
+    enabled: bool,
     silence: bool
 }
 
@@ -36,12 +37,14 @@ impl Noise {
             noise_period: 0,
             r_400f: 0,
             length_counter: 0,
+
+            enabled: false,
             silence: true
         }
     }
 
-    pub fn set_enabled(&mut self, _enabled: bool) {
-        todo!()
+    pub fn set_enabled(&mut self, enabled: bool) {
+        self.enabled = enabled;
     }
 
     #[allow(dead_code)]

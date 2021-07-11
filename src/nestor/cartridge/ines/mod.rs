@@ -99,16 +99,15 @@ impl INes {
             false => None
         };
 
-        let prg_rom_size = header.prg_rom_units as usize * 16384;
+        let prg_rom_size = header.prg_rom_units as usize * 0x4000;
         let prg_rom = real_data[i..i+prg_rom_size].to_vec();
         i += prg_rom_size;
 
-        let chr_rom_size = header.chr_rom_units as usize * 8192;
+        let chr_rom_size = header.chr_rom_units as usize * 0x2000;
         let chr_rom = real_data[i..i+chr_rom_size].to_vec();
 
         let mut data = prg_rom.clone();
         data.extend(chr_rom.iter());
-
 
         INes {
             header,

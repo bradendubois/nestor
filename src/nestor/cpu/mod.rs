@@ -72,9 +72,9 @@ impl CPU6502 {
     pub fn run(&mut self) {
         'core: while self.running {
 
-            if self.mode == RunningMode::Nestest {
+            //if self.mode == RunningMode::Nestest {
                 self.trace_store(format!("{:04X}", self.registers.pc));
-            }
+            //}
 
             if let Some(ExitCondition::PCPosition(x)) = self.exit {
                 if x == self.registers.pc {
@@ -82,16 +82,23 @@ impl CPU6502 {
                 }
             }
 
+            if self.clock > 45000 {
+                break 'core
+            }
+
             self.cycle();
 
-            if self.mode == RunningMode::Nestest {
+            //if self.mode == RunningMode::Nestest {
                 self.trace_store(format!("A:{:02X}", self.registers.a));
                 self.trace_store(format!("X:{:02X}", self.registers.x));
                 self.trace_store(format!("Y:{:02X}", self.registers.y));
                 self.trace_store(format!("P:{:02X}", self.registers.p));
                 self.trace_store(format!("SP:{:02X}", self.registers.s));
                 self.trace_store(format!("CYC:{}", self.clock));
-            }
+
+                #[cfg(feature = "trace")]
+                println!();
+            //}
         }
     }
 
@@ -105,19 +112,25 @@ impl CPU6502 {
     fn trace_store(&mut self, message: String) {
 
         #[cfg(feature = "trace")]
-        println!("{}", message);
+        print!("{} ", message);
 
         self.trace.push(message);
     }
 
     fn write(&mut self, address: u16, value: u8) {
 
+        self.io.write(address, value);
+
         if self.mode == RunningMode::Blargg && address == 0x6000 || (address >= 0x6004 && address <= 0x6020) {
             self.trace_store(format!("{:#06X}", address));
             self.trace_store(format!("{:#04X}", value));
         }
 
-        self.io.write(address, value);
+        if let Some(ExitCondition::MemoryWriteExcept(target, blacklist)) = &self.exit {
+            if *target == address && !blacklist.contains(&value) {
+                self.running = false;
+            }
+        }
     }
 }
 
@@ -465,17 +478,17 @@ mod test {
         let mut cpu = CPU6502::testing(cartridge, RunningMode::Blargg, ExitCondition::MemoryWriteExcept(0x6000, codes));
 
         cpu.registers.pc = 0x0C000;
-        cpu.registers.p = 0x24;
+        // cpu.registers.p = 0x24;
         cpu.run();
 
-        let trace = cpu.trace();
-        let mut s = String::new();
-
-        for c in trace.iter() {
-            s.push(c as char);
-        }
-
-        panic!("{}", s);
+        // let trace = cpu.trace();
+        // let mut s = String::new();
+        //
+        // for c in trace.iter() {
+        //     // s.push();
+        // }
+        //
+        // panic!("{}", s);
     }
 }
 

@@ -18,6 +18,7 @@ pub struct DMC {
     r_4013: u8,
     sample_length: u8,
 
+    enabled: bool,
     pub bytes_remaining: u8,
     pub interrupt: bool,
 }
@@ -34,13 +35,15 @@ impl DMC {
             sample_address: 0,
             r_4013: 0,
             sample_length: 0,
+
+            enabled: false,
             bytes_remaining: 0,
             interrupt: false
         }
     }
 
-    pub fn set_enabled(&mut self, _enabled: bool) {
-        todo!()
+    pub fn set_enabled(&mut self, enabled: bool) {
+        self.enabled = enabled;
     }
 
     #[allow(dead_code)]
