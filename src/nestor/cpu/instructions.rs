@@ -1,7 +1,7 @@
 use super::CPU6502;
 
 use crate::nestor::enums::{OperandMode, OperandMode::*};
-use crate::nestor::traits::MemoryMap;
+use crate::nestor::traits::{MemoryMap, Power};
 
 
 impl CPU6502 {
@@ -1211,7 +1211,7 @@ impl CPU6502 {
 
     /// 0x02, 0x12, 0x22, 0x32, 0x42, 0x52, 0x62, 0x72, 0x92, 0xB2, 0xD2, 0xF2 - Freeze
     fn jam(&mut self) -> u8 {
-        self.running = false;
+        self.reset();
         0
     }
 

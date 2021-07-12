@@ -17,26 +17,16 @@ pub struct NROM {
 
 impl NROM {
 
-    pub fn new(data: Vec<u8>) -> NROM {
-
-        let ines = INes::new(data.clone());
-
-        /*
-        for i in 0..=20 {
-            println!("{:#06X}", ines.data[i as usize]);
-        }
-
-         */
-
+    pub fn new(i_nes: INes) -> NROM {
         NROM {
-            ram: std::iter::repeat(0).take(0x2000).collect(),
-            rom: ines.data
+            ram: std::iter::repeat(0).take(0x8000).collect(),
+            rom: i_nes.prg_rom
         }
     }
 
-    pub fn from(mapper_type: NROMTypes, data: Vec<u8>) -> Box<dyn Mapper> {
+    pub fn from(mapper_type: NROMTypes, i_nes: INes) -> Box<dyn Mapper> {
         match mapper_type {
-            NROMTypes::Mapper0 => Box::new(NROM::new(data)),
+            NROMTypes::Mapper0 => Box::new(NROM::new(i_nes)),
             NROMTypes::NROM128 => panic!("NROM 128 not implemented!"),
             NROMTypes::NROM256 => panic!("NROM 256 not implemented!")
         }
@@ -55,7 +45,7 @@ impl Mapper for NROM {
         }
     }
 
-    fn write(&mut self, _address: u16, _value: u8) {
-        panic!("DID THIS GET CALLED?");
+    fn write(&mut self, address: u16, value: u8) {
+        // self.ram[(address & 0x5FFF) as usize] = value;
     }
 }

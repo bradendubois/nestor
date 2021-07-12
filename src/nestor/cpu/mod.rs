@@ -10,6 +10,7 @@ use super::io::IO;
 
 use registers::Registers;
 
+
 #[derive(Eq, PartialEq)]
 pub enum RunningMode {
     Normal,
@@ -80,10 +81,6 @@ impl CPU6502 {
                 if x == self.registers.pc {
                     break 'core
                 }
-            }
-
-            if self.clock > 45000 {
-                break 'core
             }
 
             self.cycle();
@@ -171,6 +168,7 @@ impl CPU6502 {
     /// Read one byte at the current PC value (incrementing the PC)
     pub fn byte(&mut self) -> u8 {
         let result = self.io.read(self.registers.pc);
+        // panic!("{:#06X} {}", self.registers.pc, result);
         self.registers.pc = self.registers.pc.wrapping_add(1);
         self.trace_store(format!("{:02X}", result));
         result
@@ -477,8 +475,6 @@ mod test {
 
         let mut cpu = CPU6502::testing(cartridge, RunningMode::Blargg, ExitCondition::MemoryWriteExcept(0x6000, codes));
 
-        cpu.registers.pc = 0x0C000;
-        // cpu.registers.p = 0x24;
         cpu.run();
 
         // let trace = cpu.trace();
@@ -489,6 +485,20 @@ mod test {
         // }
         //
         // panic!("{}", s);
+    }
+
+    #[test]
+    fn cpu_reset() {
+
+        let cartridge = Cartridge::new("./roms/testing/cpu/cpu_reset/registers.nes");
+
+        let mut codes: HashSet<u8> = HashSet::new();
+        codes.insert(0x80);
+        codes.insert(0x81);
+
+        let mut cpu = CPU6502::testing(cartridge, RunningMode::Blargg, ExitCondition::MemoryWriteExcept(0x6000, codes));
+
+        cpu.run();
     }
 }
 

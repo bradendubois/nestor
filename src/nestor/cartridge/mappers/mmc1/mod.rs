@@ -26,19 +26,17 @@ pub struct MMC1 {
 
 impl MMC1 {
 
-    pub fn new(data: Vec<u8>) -> MMC1 {
-
-        let ines = INes::new(data.clone());
+    pub fn new(i_nes: INes) -> MMC1 {
 
         MMC1 {
             ram: std::iter::repeat(0).take(0x2000).collect(),
             ram_enabled: false,
-            rom: ines.data,
+            rom: i_nes.prg_rom,
 
             // Control
             control: 0,
             mirror: 0,
-            prg_bankmode: 0,
+            prg_bankmode: 3,
             chr_bankmode: 0,
 
             shift_register: 0,
@@ -51,8 +49,8 @@ impl MMC1 {
         }
     }
 
-    pub fn from(data: Vec<u8>) -> Box<dyn Mapper> {
-        Box::new(MMC1::new(data))
+    pub fn from(i_nes: INes) -> Box<dyn Mapper> {
+        Box::new(MMC1::new(i_nes))
     }
 }
 

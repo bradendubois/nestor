@@ -27,17 +27,21 @@ pub struct INesHeader {
     // Flags 10 (0x10)
     tv_system_2: u8,        // Bit 0-1: 0: NTSC, 2: PAL, 1 or 3: DUAL Compatible
     prg_ram: bool,          // Bit 4: 0 (True): Present (at 0x6000-0x7000), 1 (False): Not Present
-    bus_conflicts: bool     // Bit 5: 0 (False): No conflicts, 1 (True): Board has bus conflicts
+    bus_conflicts: bool,    // Bit 5: 0 (False): No conflicts, 1 (True): Board has bus conflicts
 }
 
 impl INesHeader {
 
-    pub fn new(header_data: Vec<u8>) -> INesHeader {
+    pub fn new(header_data: &Vec<u8>) -> INesHeader {
         let flags_6 = header_data[6];
         let flags_7 = header_data[7];
         let flags_8 = header_data[8];
         let flags_9 = header_data[9];
         let flags_10 = header_data[10];
+
+        let upper_map_nibble = flags_7 & 0xF0;
+        let lower_map_nibble = flags_6 & 0xF0 >> 4;
+
         INesHeader {
             constant: header_data[0..4].to_vec(),
             prg_rom_units: header_data[4],
@@ -48,13 +52,13 @@ impl INesHeader {
             battery_prg_ram: flags_6 & 0x02 != 0,
             trainer: flags_6 & 04 != 0,
             ignore_mirror: flags_6 & 08 != 0,
-            lower_map_nibble: flags_6 & 0xF0 >> 4,
+            lower_map_nibble,
 
             // Flags 7
             vs_unisystem: flags_7 & 0x01 != 0,
             playchoice_10: flags_7 & 0x02 != 0,
             nes_2_format: flags_7 & 0x0C == 0x0C,
-            upper_map_nibble: flags_7 & 0xF0,
+            upper_map_nibble,
 
             program_ram: flags_8,             // Flags 8
             tv_system: flags_9 & 0x01 != 0,   // Flags 9
@@ -62,7 +66,7 @@ impl INesHeader {
             // Flags 10
             tv_system_2: flags_10 & 0x03,
             prg_ram: flags_10 & 0x10 != 0,
-            bus_conflicts: flags_10 & 0x20 != 0
+            bus_conflicts: flags_10 & 0x20 != 0,
         }
     }
 }
@@ -72,11 +76,13 @@ impl INesHeader {
 pub struct INes {
     header: INesHeader,
     trainer: Option<Vec<u8>>,
-    prg_rom: Vec<u8>,
-    chr_rom: Vec<u8>,
+    pub prg_rom: Vec<u8>,
+    pub chr_rom: Vec<u8>,
     instr_rom: Option<Vec<u8>>,
     prom: Option<Vec<u8>>,
-    pub data: Vec<u8>
+    pub data: Vec<u8>,
+
+    pub mapper: u8          // iNES Mapper Number
 }
 
 impl INes {
@@ -85,7 +91,7 @@ impl INes {
 
         let slice = data[0..=15].to_vec();
 
-        let header = INesHeader::new(slice);
+        let header = INesHeader::new(&slice);
 
         let real_data = data[0x10..].to_vec();
         let mut i = 0;
@@ -109,6 +115,10 @@ impl INes {
         let mut data = prg_rom.clone();
         data.extend(chr_rom.iter());
 
+        let mapper = header.upper_map_nibble | header.lower_map_nibble;
+
+        // panic!("{:?} {:#06X}", prg_rom, prg_rom.len());
+
         INes {
             header,
             trainer,
@@ -116,7 +126,8 @@ impl INes {
             chr_rom,
             instr_rom: None,
             prom: None,
-            data
+            data,
+            mapper
         }
     }
 }

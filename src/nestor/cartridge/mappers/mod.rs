@@ -3,18 +3,18 @@ mod mmc1;
 
 use crate::nestor::traits::Mapper;
 use crate::nestor::cartridge::mappers::nrom::NROMTypes::Mapper0;
+use crate::nestor::cartridge::ines::INes;
 
 
 pub fn get_mapper(data: Vec<u8>) -> Box<dyn Mapper> {
 
-    let header = &data[0..=15];
+    let i_nes = INes::new(data);
 
-    let mapper_number = (header[7] & 0xF0) | ((header[6] & 0xF0) >> 4);
+    // panic!("{}", i_nes.mapper);
 
-    match mapper_number {
-        0x00 => nrom::NROM::from(Mapper0, data),
-        0x01 => mmc1::MMC1::from(data),
-
-        _ => panic!("unsupported mapper type: {}", mapper_number)
+    match i_nes.mapper {
+        0x00 => nrom::NROM::from(Mapper0, i_nes),
+        0x01 => mmc1::MMC1::from(i_nes),
+        _ => panic!("unsupported mapper type: {}", i_nes.mapper)
     }
 }

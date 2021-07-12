@@ -15,14 +15,12 @@ impl Registers {
 
     pub fn new() -> Registers {
         Registers {
-            // pc: 0,
-            pc: 0xC000,
+            pc: 0xFFFC,
             a: 0,
             x: 0,
             y: 0,
             s: 0xFD,
-            // p: 0x34
-            p: 0x24
+            p: 0x34
         }
     }
 

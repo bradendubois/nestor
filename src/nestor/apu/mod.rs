@@ -188,11 +188,11 @@ impl MemoryMap for APU {
 
             // TODO - What happens when you read a write-only register? 0's, garbage?
             // Channels
-            0x4000..=0x4003 => self.pulse_1.read(address),      // Pulse 1
-            0x4004..=0x4007 => self.pulse_2.read(address),      // Pulse 2
-            0x4008..=0x400B => self.triangle.read(address),     // Triangle
-            0x400C..=0x400F => self.noise.read(address),        // Noise
-            0x4010..=0x4013 => self.dmc.read(address),          // DMC
+            0x4000..=0x4003 => self.pulse_1.read(address),              // Pulse 1
+            0x4004..=0x4007 => self.pulse_2.read(address),              // Pulse 2
+            0x4008 | 0x400A..=0x400B => self.triangle.read(address),    // Triangle
+            0x400C | 0x400E..=0x400F => self.noise.read(address),       // Noise
+            0x4010..=0x4013 => self.dmc.read(address),                  // DMC
 
             // Status
             0x4015 => {
