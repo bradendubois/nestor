@@ -27,6 +27,17 @@ pub enum ExitCondition {
 }
 
 
+#[derive(Eq, PartialEq)]
+pub enum IRQStatus {
+    IRQ0,
+    IRQ1
+}
+
+pub enum Interrupt {
+    IRQ(IRQStatus)
+}
+
+
 pub struct CPU6502 {
     registers: Registers,
     pub io: IO,
@@ -34,7 +45,8 @@ pub struct CPU6502 {
     clock: u64,
     trace: Vec<String>,
     mode: RunningMode,
-    exit: Option<ExitCondition>
+    exit: Option<ExitCondition>,
+    irq: IRQStatus
 }
 
 impl CPU6502 {
@@ -48,7 +60,8 @@ impl CPU6502 {
             clock: 7,
             trace: Vec::new(),
             mode: RunningMode::Normal,
-            exit: None
+            exit: None,
+            irq: IRQ1
         }
     }
 
@@ -61,7 +74,8 @@ impl CPU6502 {
             clock: 7,
             trace: Vec::new(),
             mode,
-            exit: Some(exit)
+            exit: Some(exit),
+            irq: IRQ1
         }
     }
 
@@ -84,6 +98,10 @@ impl CPU6502 {
             }
 
             self.cycle();
+
+            if self.irq == IRQStatus::IRQ0 {
+                self.clock += self.call(0x00);
+            }
 
             //if self.mode == RunningMode::Nestest {
                 self.trace_store(format!("A:{:02X}", self.registers.a));
